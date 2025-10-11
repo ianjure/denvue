@@ -8,6 +8,7 @@ import json
 st.set_page_config(
     page_title="Denvue Dashboard",
     layout="wide"
+)
 
 # ---- LOAD DATA ----
 @st.cache_data
@@ -89,3 +90,4 @@ fig.update_layout(
 # ---- DISPLAY ----
 
 st.plotly_chart(fig, use_container_width=True)
+
