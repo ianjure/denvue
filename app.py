@@ -1,8 +1,10 @@
 import streamlit as st
 import geopandas as gpd
 import pandas as pd
-import plotly.express as px
+from shapely import wkt
+
 import json
+import plotly.express as px
 
 # ---- PAGE CONFIG ----
 st.set_page_config(
@@ -13,37 +15,37 @@ st.set_page_config(
 # ---- LOAD DATA ----
 @st.cache_data
 def load_data():
-    merged_all = pd.read_csv("forecasts.csv")
+    # Load barangay geometry
+    cdo_barangays = pd.read_csv("cdo_barangays.csv")
+    cdo_barangays["Geometry"] = cdo_barangays["Geometry"].apply(wkt.loads)
+    gdf_barangays = gpd.GeoDataFrame(cdo_barangays, geometry="Geometry", crs="EPSG:4326")
 
-    # Convert geometry from WKT to GeoSeries
-    merged_all["geometry"] = gpd.GeoSeries.from_wkt(merged_all["geometry"])
-    merged_all = gpd.GeoDataFrame(merged_all, geometry="geometry", crs="EPSG:4326")
+    # Load forecasts (VARMAX)
+    forecasts = pd.read_csv("varmax_forecasts.csv")
+    forecasts["Date"] = pd.to_datetime(forecasts["Date"])
 
-    # Ensure Date is datetime
-    merged_all["Date"] = pd.to_datetime(merged_all["Date"])
-    return merged_all
+    # Merge with geometry
+    merged = forecasts.merge(gdf_barangays, on="Barangay", how="left")
+    merged_gdf = gpd.GeoDataFrame(merged, geometry="Geometry", crs="EPSG:4326")
+    return merged_gdf
 
 merged_all = load_data()
 
-# ---- SEPARATE GEOMETRY ----
-barangay_shapes = merged_all.drop_duplicates(subset="Barangay")[["Barangay", "geometry"]].copy()
+# ---- GEOJSON ----
+barangay_shapes = merged_all.drop_duplicates(subset="Barangay")[["Barangay", "Geometry"]].copy()
+barangay_json = json.loads(barangay_shapes.set_geometry("Geometry").to_json())
 
-# Ensure Barangay is string
-barangay_shapes["Barangay"] = barangay_shapes["Barangay"].astype(str)
-merged_all["Barangay"] = merged_all["Barangay"].astype(str)
-
-# Convert to GeoJSON
-barangay_json = json.loads(barangay_shapes.to_json())
-
-# ---- TABULAR DATA ----
+# ---- DATA PREP ----
 forecast_data = merged_all[["Barangay", "Date", "Forecast_Cases", "Risk_Level"]].copy()
-forecast_data["Date"] = forecast_data["Date"].dt.strftime("%Y-%m-%d")
+forecast_data["Date"] = pd.to_datetime(forecast_data["Date"])
+forecast_data["Year"] = forecast_data["Date"].dt.year
+forecast_data["Date_str"] = forecast_data["Date"].dt.strftime("%Y-%m-%d")
 
 # ---- COLOR RANGE ----
 zmin = forecast_data["Forecast_Cases"].min()
 zmax = forecast_data["Forecast_Cases"].max()
 
-# ---- CHOROPLETH ----
+# ---- CHOROPLETH MAP ----
 fig = px.choropleth_mapbox(
     forecast_data,
     geojson=barangay_json,
@@ -54,26 +56,25 @@ fig = px.choropleth_mapbox(
     hover_data={
         "Forecast_Cases": True,
         "Risk_Level": True,
-        "Date": True
+        "Date_str": True
     },
-    animation_frame="Date",
+    animation_frame="Date_str",
     color_continuous_scale="YlOrRd",
     range_color=[zmin, zmax],
-    mapbox_style="carto-positron",   # ✅ Neutral map background
-    center={"lat": 8.48, "lon": 124.65},  # Center on Cagayan de Oro
+    mapbox_style="carto-positron",
+    center={"lat": 8.48, "lon": 124.65},
     zoom=11,
 )
 
-# ---- LAYOUT TWEAKS ----
 fig.update_layout(
     width=1100,
     height=750,
-    margin=dict(r=20, t=80, l=20, b=20),
+    margin=dict(r=10, t=60, l=10, b=10),
     coloraxis_colorbar=dict(
         title="Forecasted Cases",
-        orientation="h",           # ✅ Make legend horizontal
+        orientation="h",
         yanchor="bottom",
-        y=1.05,                    # Move above the map
+        y=1.05,
         xanchor="center",
         x=0.5,
         thickness=10,
@@ -81,13 +82,44 @@ fig.update_layout(
         title_side="top"
     ),
     title=dict(
-        text=f"Weekly Dengue Forecast by Barangay",
-        x=0.5,  # ✅ Center the title
+        text="Weekly Dengue Forecast by Barangay (VARMAX Model)",
+        x=0.5,
         xanchor="center"
     )
 )
 
-# ---- DISPLAY ----
+# ---- PAGE LAYOUT ----
+st.markdown("## 🦟 Denvue Forecast Dashboard (2025–2027)")
 
-st.plotly_chart(fig, use_container_width=True)
+col1, col2 = st.columns([2.5, 1])
 
+with col1:
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+    st.markdown("### 📊 Forecast Summary")
+
+    # --- YEAR FILTER ---
+    available_years = sorted(forecast_data["Year"].unique())
+    selected_year = st.selectbox("Select Year", available_years, index=len(available_years) - 1)
+
+    # --- FILTER DATA BY YEAR ---
+    filtered_data = forecast_data[forecast_data["Year"] == selected_year]
+    latest_date = filtered_data["Date"].max()
+    latest_week = filtered_data[filtered_data["Date"] == latest_date][["Barangay", "Forecast_Cases", "Risk_Level"]]
+    latest_week = latest_week.sort_values(by="Forecast_Cases", ascending=False)
+
+    st.markdown(f"**Latest Week: {latest_date.strftime('%B %d, %Y')}**")
+    st.dataframe(
+        latest_week.style.background_gradient(subset=["Forecast_Cases"], cmap="YlOrRd"),
+        use_container_width=True,
+        height=700
+    )
+
+# ---- FOOTER ----
+st.markdown(
+    "<p style='text-align:center; color:gray; font-size:12px;'>"
+    "Data Source: VARMAX Forecasts | Geometry: Cagayan de Oro Barangays (EPSG:4326)"
+    "</p>",
+    unsafe_allow_html=True
+)
