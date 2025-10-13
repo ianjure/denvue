@@ -31,9 +31,6 @@ hide_menu = """
         height: 0%;
         position: fixed;
     }
-    [data-testid="stToolbar"] {
-        display: none;
-    }
     </style>
     """
 st.markdown(hide_menu, unsafe_allow_html=True)
@@ -337,6 +334,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
