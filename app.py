@@ -68,7 +68,7 @@ def load_data():
     cdo_barangays["Geometry"] = cdo_barangays["Geometry"].apply(wkt.loads)
     gdf_barangays = gpd.GeoDataFrame(cdo_barangays, geometry="Geometry", crs="EPSG:4326")
 
-    forecasts = pd.read_csv("varmax_forecasts.csv")
+    forecasts = pd.read_csv("all_models_forecasts.csv")
     forecasts["Date"] = pd.to_datetime(forecasts["Date"])
     merged = forecasts.merge(gdf_barangays, on="Barangay", how="left")
     merged_gdf = gpd.GeoDataFrame(merged, geometry="Geometry", crs="EPSG:4326")
@@ -85,14 +85,19 @@ col1, col2 = st.columns(2)
 
 # ---- LEFT COLUMN ----
 with col1:
-    # --- FILTER DATA FOR MAP ---
+    # --- DEFAULTS ---
     available_years = sorted(merged_all["Year"].unique())
     default_year_index = available_years.index(2025) if 2025 in available_years else len(available_years) - 1
-    selected_year = available_years[default_year_index]
+    default_model_key = "varmax" if "varmax" in merged_all["Model"].unique() else merged_all["Model"].unique()[0]
 
-    year_data = merged_all[merged_all["Year"] == selected_year].copy()
+    # --- INITIAL FILTER ---
+    selected_year = available_years[default_year_index]
+    selected_model = default_model_key
+    
+    model_data = merged_all[merged_all["Model"] == selected_model]
+    year_data = model_data[model_data["Year"] == selected_year].copy()
     available_weeks = sorted(year_data["Week"].unique())
-    selected_week = max(available_weeks)
+    selected_week = min(available_weeks)
 
     week_data = year_data[year_data["Week"] == selected_week].copy()
 
@@ -101,7 +106,7 @@ with col1:
 
     # --- ENSURE NUMERIC ---
     week_data["Forecast_Cases"] = pd.to_numeric(week_data["Forecast_Cases"], errors="coerce").fillna(0)
-    week_data["Forecast_vis"] = week_data["Forecast_Cases"].astype(float)
+    # week_data["Forecast_vis"] = week_data["Forecast_Cases"].astype(float)
 
     # --- MAP SECTION ---
     bounds = week_data.total_bounds if not week_data.empty else [124.5, 8.4, 124.8, 8.6]
@@ -171,13 +176,19 @@ with col1:
     m.to_streamlit(height=580, width=None, add_layer_control=False)
 
     # --- FILTER CONTROLS ---
-    filter_col1, filter_col2 = st.columns(2)
+    filter_col1, filter_col2, filter_col3 = st.columns([1, 1, 2])
     with filter_col1:
-        selected_year = st.selectbox("📅 Select Year", available_years, index=default_year_index)
-    year_data = merged_all[merged_all["Year"] == selected_year].copy()
-    available_weeks = sorted(year_data["Week"].unique())
+        selected_year = st.selectbox("Select Year", available_years, index=default_year_index)
     with filter_col2:
-        selected_week = st.select_slider("🗓️ Select Week", options=available_weeks, value=max(available_weeks))
+        model_display_names = [model_name_map[m] for m in merged_all["Model"].unique() if m in model_name_map]
+        selected_model_display = st.selectbox("Select Model", model_display_names, 
+                                              index=model_display_names.index(model_name_map[default_model_key]))
+        selected_model = [k for k, v in model_name_map.items() if v == selected_model_display][0]
+    with filter_col3:
+        model_data = merged_all[merged_all["Model"] == selected_model]
+        year_data = model_data[model_data["Year"] == selected_year].copy()
+        available_weeks = sorted(year_data["Week"].unique())
+        selected_week = st.select_slider("Select Week", options=available_weeks, value=max(available_weeks))
 
 # ---- RIGHT COLUMN ----
 with col2:
@@ -214,4 +225,5 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
