@@ -183,8 +183,7 @@ with col1:
             st.session_state.selected_year = st.selectbox(
                 "Select Year",
                 available_years,
-                index=available_years.index(st.session_state.selected_year),
-                key="selected_year",
+                index=available_years.index(st.session_state.selected_year)
             )
 
         with filter_col2:
@@ -213,8 +212,7 @@ with col1:
             st.session_state.selected_week = st.select_slider(
                 "Select Week",
                 options=available_weeks,
-                value=st.session_state.selected_week if st.session_state.selected_week in available_weeks else min(available_weeks),
-                key="selected_week",
+                value=st.session_state.selected_week if st.session_state.selected_week in available_weeks else min(available_weeks)
             )
             
 # ---- RIGHT COLUMN ----
@@ -252,6 +250,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
 
