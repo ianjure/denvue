@@ -300,6 +300,4 @@ with col2:
         return f'background-color: {color}; color: {text_color}; font-weight: bold'
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
-    st.dataframe(styled_table, width='stretch', height=400)
-
-
+    st.dataframe(styled_table, width='stretch', height=380)
