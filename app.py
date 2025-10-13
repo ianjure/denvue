@@ -10,6 +10,7 @@ import json
 
 # PAGE CONFIG
 st.set_page_config(page_title="Denvue Dashboard", layout="wide")
+st.logo(image="logo.png", size="large")
 
 # [STREAMLIT] ADJUST PADDING
 padding = """
@@ -290,6 +291,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
 
