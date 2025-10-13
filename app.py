@@ -99,9 +99,12 @@ with col1:
     if "Date" in week_data.columns:
         week_data["Date"] = week_data["Date"].astype(str)
 
+    # --- ENSURE NUMERIC ---
+    week_data["Forecast_Cases"] = pd.to_numeric(week_data["Forecast_Cases"], errors="coerce").fillna(0)
+    week_data["Forecast_vis"] = week_data["Forecast_Cases"].astype(float)
+
     # --- MAP VISUALIZATION RANGE ---
     vmin, vmax = 0, week_data["Forecast_Cases"].max() if not week_data.empty else 1
-    week_data["Forecast_vis"] = week_data["Forecast_Cases"].clip(vmin, vmax)
 
     # --- MAP SECTION ---
     bounds = week_data.total_bounds if not week_data.empty else [124.5, 8.4, 124.8, 8.6]
@@ -112,33 +115,23 @@ with col1:
         min_zoom=10,
         max_zoom=18,
         tiles="CartoDB.PositronNoLabels",
-        max_bounds=True,
-        min_lat=bounds[1] - buffer,
-        max_lat=bounds[3] + buffer,
-        min_lon=bounds[0] - buffer,
-        max_lon=bounds[2] + buffer,
         control_scale=False,
-        search_control=False,
         layer_control=False,
     )
 
     # --- COLOR BINS AND PALETTE ---
-    bins = [0, 5, 10, 25, 50, 75, 100, 200, vmax]
+    bins = [0, 5, 10, 25, 50, 75, 100, 200, vmax + 1]
     colors = ['#ffffcc', '#ffeda0', '#fed976', '#feb24c',
               '#fd8d3c', '#f03b20', '#bd0026', '#800026']
 
     def get_color(value):
+        value = float(value) if pd.notna(value) else 0
         for i, b in enumerate(bins[1:]):
             if value < b:
                 return colors[i]
         return colors[-1]
 
-    colormap = cm.LinearColormap(
-        colors=colors,
-        vmin=vmin,
-        vmax=vmax,
-        caption="Forecasted Dengue Cases"
-    )
+    colormap = cm.LinearColormap(colors=colors, vmin=vmin, vmax=vmax, caption="Forecasted Dengue Cases")
 
     # --- STYLE FUNCTION FOR GEOJSON ---
     def style_function(feature):
@@ -153,7 +146,7 @@ with col1:
 
     # --- TOOLTIP FORMAT ---
     week_data["Forecast_Cases_str"] = week_data["Forecast_Cases"].apply(lambda x: f"{x:.1f}")
-    geojson_data = json.loads(week_data.to_json())
+    geojson_data = json.loads(week_data.to_json(default_handler=str))
 
     folium.GeoJson(
         data=geojson_data,
@@ -169,25 +162,17 @@ with col1:
 
     colormap.add_to(m)
 
-    # --- DISPLAY MAP ---
     st.subheader(f"🗺️ Dengue Forecast Map — Week {selected_week}, {selected_year}")
     m.to_streamlit(height=580, width=None, add_layer_control=False)
 
     # --- FILTER CONTROLS ---
     filter_col1, filter_col2 = st.columns(2)
-
     with filter_col1:
         selected_year = st.selectbox("📅 Select Year", available_years, index=default_year_index)
-
     year_data = merged_all[merged_all["Year"] == selected_year].copy()
     available_weeks = sorted(year_data["Week"].unique())
-
     with filter_col2:
-        selected_week = st.select_slider(
-            "🗓️ Select Week",
-            options=available_weeks,
-            value=max(available_weeks)
-        )
+        selected_week = st.select_slider("🗓️ Select Week", options=available_weeks, value=max(available_weeks))
 
 # ---- RIGHT COLUMN ----
 with col2:
@@ -206,22 +191,14 @@ with col2:
     st.subheader("📍Barangays by Forecasted Cases")
 
     table_df = week_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].sort_values(by='Forecast_Cases', ascending=False).reset_index(drop=True)
-    table_df['Forecast_Cases'] = table_df['Forecast_Cases'].map(lambda x: f"{x:.1f}")
-    table_df = table_df.rename(columns={
-        "Barangay": "Barangay",
-        "Forecast_Cases": "Forecasted Cases",
-        "Risk_Level": "Risk Level"
-    })
+    table_df['Forecasted Cases'] = table_df['Forecast_Cases'].round(1)
+    table_df = table_df.rename(columns={"Barangay": "Barangay", "Risk_Level": "Risk Level"})
 
     def color_forecast(val):
-        try:
-            val_float = float(val)
-            color = get_color(val_float)
-            dark_colors = ['#f03b20', '#bd0026', '#800026']
-            text_color = "white" if color in dark_colors else "black"
-            return f'background-color: {color}; color: {text_color}; font-weight: bold'
-        except:
-            return ''
+        color = get_color(val)
+        dark_colors = ['#f03b20', '#bd0026', '#800026']
+        text_color = "white" if color in dark_colors else "black"
+        return f'background-color: {color}; color: {text_color}; font-weight: bold'
 
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, use_container_width=True, height=400)
