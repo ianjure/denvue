@@ -123,7 +123,7 @@ with col1:
         filtered_data["Forecast_Cases"] = pd.to_numeric(filtered_data["Forecast_Cases"], errors="coerce").fillna(0)
 
         # MAP SECTION
-        st.subheader(f"🗺️ Dengue Forecast Map — Week {st.session_state.selected_week}, {st.session_state.selected_year}, {st.session_state.selected_model}")
+        st.write(f"**Dengue Risk Distribution Map**")
         bounds = filtered_data.total_bounds
         buffer = 0.05
         map = leafmap.Map(
@@ -207,7 +207,7 @@ with col1:
         legend = MacroElement()
         legend._template = Template(legend_html)
         map.get_root().add_child(legend)
-        map.to_streamlit(height=580, width=None, add_layer_control=False)
+        map.to_streamlit(height=400, width=None, add_layer_control=False)
 
         # FILTERS CONTROLS
         filter_col1, filter_col2, filter_col3 = st.columns([1, 1, 2])
@@ -265,7 +265,7 @@ with col1:
 # RIGHT COLUMN
 with col2:
     # METRICS SECTION
-    st.subheader("🔍 Summary Metrics")
+    st.write("**Summary Metrics**")
 
     avg_cases = filtered_data['Forecast_Cases'].mode()
     max_row = filtered_data.loc[filtered_data['Forecast_Cases'].idxmax()]
@@ -277,7 +277,7 @@ with col2:
     m3.metric("Lowest Risk Barangay", min_row['Barangay'])
 
     # TABLE SECTION
-    st.subheader("📍 Barangays by Forecasted Cases")
+    st.write("**Risk Ranking by Barangay")
 
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Risk_Level": "Risk Level"})
@@ -300,11 +300,4 @@ with col2:
         return f'background-color: {color}; color: {text_color}; font-weight: bold'
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
-    st.dataframe(styled_table, width='stretch', height=500)
-
-
-
-
-
-
-
+    st.dataframe(styled_table, width='stretch', height=450)
