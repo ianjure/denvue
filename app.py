@@ -180,7 +180,7 @@ with col1:
         filter_col1, filter_col2, filter_col3 = st.columns([1, 1, 2])
 
         with filter_col1:
-            selected_year = st.selectbox(
+            st.session_state.selected_year = st.selectbox(
                 "Select Year",
                 available_years,
                 index=available_years.index(st.session_state.selected_year),
@@ -202,7 +202,6 @@ with col1:
                 "Select Model",
                 model_display_names,
                 index=model_display_names.index(model_name_map[st.session_state.selected_model]),
-                key="selected_model_display",
             )
             st.session_state.selected_model = model_display_to_key[selected_model_display]
 
@@ -210,13 +209,14 @@ with col1:
             model_data = merged_all[merged_all["Model"] == st.session_state.selected_model]
             year_data = model_data[model_data["Year"] == st.session_state.selected_year].copy()
             available_weeks = sorted(year_data["Week"].unique())
+
             st.session_state.selected_week = st.select_slider(
                 "Select Week",
                 options=available_weeks,
                 value=st.session_state.selected_week if st.session_state.selected_week in available_weeks else min(available_weeks),
                 key="selected_week",
             )
-
+            
 # ---- RIGHT COLUMN ----
 with col2:
     st.subheader("🔍 Summary Metrics")
@@ -252,6 +252,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
 
