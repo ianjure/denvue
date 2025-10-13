@@ -212,9 +212,6 @@ with col1:
                 options=available_weeks,
                 value=st.session_state.selected_week if st.session_state.selected_week in available_weeks else min(available_weeks)
             )
-
-        # RERUN TO SHOW CHANGES
-        st.rerun()
             
 # RIGHT COLUMN
 with col2:
@@ -252,4 +249,5 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
