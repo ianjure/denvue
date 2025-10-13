@@ -11,6 +11,51 @@ import json
 # ---- PAGE CONFIG ----
 st.set_page_config(page_title="Denvue Dashboard", layout="wide")
 
+
+# [STREAMLIT] ADJUST PADDING
+padding = """
+    <style>
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 0rem;
+    }
+    </style>
+    """
+st.markdown(padding, unsafe_allow_html=True)
+
+# [LEAFMAP] ADD MAP BORDER
+map_border_style = """
+<style>
+iframe {
+    border: 1px solid white !important;
+    box-sizing: border-box;
+}
+</style>
+"""
+st.markdown(map_border_style, unsafe_allow_html=True)
+
+# [STREAMLIT] METRIC VALUE SIZE
+metric_value = """
+<style>
+div[data-testid="stMetricValue"] {
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+</style>
+"""
+st.markdown(metric_value, unsafe_allow_html=True)
+
+# [STREAMLIT] METRIC BACKGROUND COLOR
+metric_background = """
+<style>
+div[data-testid="stMetric"] {
+    background: white;
+}
+</style>
+"""
+st.markdown(metric_background, unsafe_allow_html=True)
+
+
 # ---- LOAD DATA ----
 @st.cache_data
 def load_data():
@@ -34,24 +79,19 @@ merged_all["Week"] = merged_all["Date"].dt.isocalendar().week.astype(int)
 st.markdown("## 🦟 Denvue Forecast Dashboard (2025–2027)")
 
 # ---- DASHBOARD LAYOUT ----
-col1, col2 = st.columns([2.5, 1])
+col1, col2 = st.columns(2)
 
 # ---- LEFT COLUMN ----
 with col1:
-    # --- YEAR SELECTOR ---
+    # --- FILTER DATA FOR MAP ---
     available_years = sorted(merged_all["Year"].unique())
-    selected_year = st.selectbox("📅 Select Year", available_years, index=len(available_years) - 1)
+    default_year_index = available_years.index(2025) if 2025 in available_years else len(available_years) - 1
+    selected_year = available_years[default_year_index]
 
     year_data = merged_all[merged_all["Year"] == selected_year].copy()
     available_weeks = sorted(year_data["Week"].unique())
-    selected_week = st.slider(
-        "🗓️ Select Week",
-        min_value=min(available_weeks),
-        max_value=max(available_weeks),
-        value=max(available_weeks)
-    )
+    selected_week = max(available_weeks)
 
-    # --- FILTER FOR SELECTED WEEK ---
     week_data = year_data[year_data["Week"] == selected_week].copy()
 
     if "Date" in week_data.columns:
@@ -127,9 +167,27 @@ with col1:
 
     colormap.add_to(m)
 
+    # --- DISPLAY MAP ---
     st.subheader(f"🗺️ Dengue Forecast Map — Week {selected_week}, {selected_year}")
     m.to_streamlit(height=580, width=None, add_layer_control=False)
 
+    # --- FILTER CONTROLS BELOW MAP ---
+    st.markdown("### 🔍 Filter Data")
+
+    filter_col1, filter_col2 = st.columns(2)
+
+    with filter_col1:
+        selected_year = st.selectbox("📅 Select Year", available_years, index=default_year_index)
+
+    year_data = merged_all[merged_all["Year"] == selected_year].copy()
+    available_weeks = sorted(year_data["Week"].unique())
+
+    with filter_col2:
+        selected_week = st.select_slider(
+            "🗓️ Select Week",
+            options=available_weeks,
+            value=max(available_weeks)
+        )
 
 # ---- RIGHT COLUMN ----
 with col2:
@@ -167,4 +225,3 @@ with col2:
 
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, use_container_width=True, height=400)
-
