@@ -33,15 +33,18 @@ div[data-testid="stToolbar"] {
 """
 st.markdown(toolbar_bg, unsafe_allow_html=True)
 
-# [STREAMLIT] HIDE TOOLBAR ACTIONS
-hide_toolbar_actions = """
+# [STREAMLIT] HIDE MENU
+hide_menu = """
     <style>
     div[data-testid="stToolbarActions"] {
         display: none;
     }
+    div[data-testid="stMainMenu"] {
+        display: none;
+    }
     </style>
     """
-st.markdown(hide_toolbar_actions, unsafe_allow_html=True)
+st.markdown(hide_menu, unsafe_allow_html=True)
 
 # [STREAMLIT] HEADER COLOR
 header_color = """
@@ -321,6 +324,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
