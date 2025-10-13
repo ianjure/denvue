@@ -37,7 +37,7 @@ st.markdown(toolbar_bg, unsafe_allow_html=True)
 map_border_style = """
 <style>
 iframe {
-    border: 1px solid white !important;
+    border: 1px solid #E0E0E0 !important;
     box-sizing: border-box;
     border-radius: 0.5rem;
 }
@@ -61,7 +61,7 @@ metric_style = """
 <style>
 div[data-testid="stMetric"] {
     background: white;
-    border: 1px solid #D5D5D5;
+    border: 1px solid #E0E0E0;
     border-radius: 0.5rem;
     padding-top: 0.6rem;
     padding-bottom: 0.6rem;
@@ -302,6 +302,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
