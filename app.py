@@ -23,6 +23,16 @@ padding = """
     """
 st.markdown(padding, unsafe_allow_html=True)
 
+# [STREAMLIT] TOOLBAR BACKGROUND
+toolbar_bg = """
+<style>
+div[data-testid="stToolbar"] {
+    background-color: #698C6E;
+}
+</style>
+"""
+st.markdown(toolbar_bg, unsafe_allow_html=True)
+
 # [LEAFMAP] ADD MAP BORDER
 map_border_style = """
 <style>
@@ -291,6 +301,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
 
