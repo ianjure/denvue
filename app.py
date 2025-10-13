@@ -17,7 +17,7 @@ padding = """
     <style>
     .block-container {
         padding-top: 0rem;
-        padding-bottom: 3rem;
+        padding-bottom: 2.5rem;
     }
     </style>
     """
@@ -222,7 +222,7 @@ with col1:
         map.to_streamlit(height=450, width=None, add_layer_control=False)
 
         # FILTERS CONTROLS
-        filter_col1, filter_col2, filter_col3 = st.columns([1, 2, 3])
+        filter_col1, filter_col2, filter_col3 = st.columns([2, 1, 3])
 
         with filter_col1:
             model_name_map = {
@@ -307,4 +307,5 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
