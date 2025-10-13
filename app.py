@@ -111,7 +111,7 @@ with col1:
         filtered_data["Forecast_Cases"] = pd.to_numeric(filtered_data["Forecast_Cases"], errors="coerce").fillna(0)
 
         # MAP SECTION
-        st.subheader(f"🗺️ Dengue Forecast Map — Week {st.session_state.selected_week}, {st.session_state.selected_year}")
+        st.subheader(f"🗺️ Dengue Forecast Map — Week {st.session_state.selected_week}, {st.session_state.selected_year}, {st.session_state.selected_model}")
         bounds = filtered_data.total_bounds
         buffer = 0.05
         map = leafmap.Map(
@@ -252,3 +252,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
