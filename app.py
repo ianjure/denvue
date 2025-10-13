@@ -133,9 +133,11 @@ with col1:
         risk_colors = {
             "Low Risk": "#ffffcc",
             "Moderate Risk": "#feb24c",
-            "High Risk": "#fd8d3c",
-            "Very High Risk": "#bd0026",
+            "High Risk": "#fd8d3c"
         }
+        
+        risk_levels_order = list(risk_colors.keys())
+        risk_to_index = {level: i for i, level in enumerate(risk_levels_order)}
         
         colormap = cm.StepColormap(
             colors=list(risk_colors.values()),
@@ -149,7 +151,7 @@ with col1:
             if pd.isna(risk_level):
                 return "#d9d9d9"
             return risk_colors.get(risk_level, "#d9d9d9")
-
+        
         def style_function(feature):
             risk_level = feature["properties"].get("Risk_Level", None)
             return {
@@ -159,10 +161,10 @@ with col1:
                 "weight": 1.0,
                 "opacity": 1.0,
             }
-
+        
         filtered_data["Forecast_Cases_str"] = filtered_data["Forecast_Cases"].apply(lambda x: f"{x:.1f}")
         geojson_data = json.loads(filtered_data.to_json())
-
+        
         folium.GeoJson(
             data=geojson_data,
             style_function=style_function,
@@ -174,7 +176,11 @@ with col1:
             ),
             name="Forecasted Cases",
         ).add_to(map)
-
+        
+        for i, level in enumerate(risk_levels_order):
+            colormap.colors[i] = risk_colors[level]
+        colormap.caption = "Risk Level"
+        
         colormap.add_to(map)
         map.to_streamlit(height=580, width=None, add_layer_control=False)
 
@@ -234,7 +240,7 @@ with col1:
 # RIGHT COLUMN
 with col2:
     # METRICS SECTION
-    st.subheader("🔍Summary Metrics")
+    st.subheader("🔍 Summary Metrics")
 
     avg_cases = filtered_data['Forecast_Cases'].mode()
     max_row = filtered_data.loc[filtered_data['Forecast_Cases'].idxmax()]
@@ -246,12 +252,12 @@ with col2:
     m3.metric("Lowest Risk Barangay", min_row['Barangay'])
 
     # TABLE SECTION
-    st.subheader("📍Barangays by Forecasted Cases")
+    st.subheader("📍 Barangays by Forecasted Cases")
 
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Risk_Level": "Risk Level"})
     
-    risk_order = ["Low Risk", "Moderate Risk", "High Risk", "Very High Risk"]
+    risk_order = ["Low Risk", "Moderate Risk", "High Risk"]
     table_df["Risk Level"] = pd.Categorical(table_df["Risk Level"], categories=risk_order, ordered=True)
     table_df = table_df.sort_values(by=['Risk Level', 'Forecasted Cases'], ascending=[False, False]).reset_index(drop=True)
 
@@ -270,4 +276,3 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
-
