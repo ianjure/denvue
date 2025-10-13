@@ -135,7 +135,7 @@ with col1:
 
         colormap = cm.LinearColormap(
             colors=["#ffffcc", "#ffeda0", "#fed976", "#feb24c",
-                    "#fd8d3c", "#f03b20", "#bd0026", "#800026"],
+                    "#fd8d3c", "#f03b20", "#bd0026", "#4a000f"],
             vmin=vmin,
             vmax=vmax,
             caption="Forecasted Dengue Cases"
@@ -249,5 +249,3 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
-
-
