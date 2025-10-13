@@ -267,7 +267,7 @@ with col2:
     # METRICS SECTION
     st.write("#### **Summary Metrics**")
 
-    avg_cases = filtered_data['Forecast_Cases'].mode()
+    avg_cases = filtered_data['Forecast_Cases'].mode()[0]
     max_row = filtered_data.loc[filtered_data['Forecast_Cases'].idxmax()]
     min_row = filtered_data.loc[filtered_data['Forecast_Cases'].idxmin()]
 
@@ -301,4 +301,5 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=400)
+
 
