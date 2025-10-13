@@ -219,19 +219,19 @@ with col1:
 with col2:
     st.subheader("🔍 Summary Metrics")
 
-    avg_cases = week_data['Forecast_Cases'].mean().round(2)
-    max_row = week_data.loc[week_data['Forecast_Cases'].idxmax()]
-    min_row = week_data.loc[week_data['Forecast_Cases'].idxmin()]
+    avg_cases = filtered_data['Forecast_Cases'].mode()
+    max_row = filtered_data.loc[filtered_data['Forecast_Cases'].idxmax()]
+    min_row = filtered_data.loc[filtered_data['Forecast_Cases'].idxmin()]
 
     m1, m2, m3 = st.columns(3)
-    m1.metric("Average Forecasted Cases", f"{avg_cases:.2f}")
+    m1.metric("Average Forecasted Cases", f"{avg_cases}")
     m2.metric("Highest Risk Barangay", max_row['Barangay'])
     m3.metric("Lowest Risk Barangay", min_row['Barangay'])
 
     # ---- TABLE SECTION ----
     st.subheader("📍Barangays by Forecasted Cases")
 
-    table_df = week_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
+    table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Risk_Level": "Risk Level"})
     table_df = table_df.sort_values(by='Forecasted Cases', ascending=False).reset_index(drop=True)
 
@@ -250,11 +250,3 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
-
-
-
-
-
-
-
-
