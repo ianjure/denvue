@@ -12,16 +12,31 @@ import json
 st.set_page_config(page_title="Denvue Dashboard", layout="wide")
 st.logo(image="logo.png", size="large")
 
-# [STREAMLIT] ADJUST PADDING
-padding = """
+# [STREAMLIT] HIDE MENU
+hide_menu = """
     <style>
-    .block-container {
-        padding-top: 0rem;
-        padding-bottom: 2.5rem;
+    #MainMenu {
+        visibility: hidden;
+    }
+    footer {
+        visibility: hidden;
+    }
+    div[data-testid="stDecoration"] {
+        visibility: hidden;
+        height: 0%;
+        position: fixed;
+    }
+    div[data-testid="stStatusWidget"] {
+        visibility: hidden;
+        height: 0%;
+        position: fixed;
+    }
+    [data-testid="stToolbar"] {
+        display: none;
     }
     </style>
     """
-st.markdown(padding, unsafe_allow_html=True)
+st.markdown(hide_menu, unsafe_allow_html=True)
 
 # [STREAMLIT] TOOLBAR BACKGROUND
 toolbar_bg = """
@@ -32,6 +47,17 @@ div[data-testid="stToolbar"] {
 </style>
 """
 st.markdown(toolbar_bg, unsafe_allow_html=True)
+
+# [STREAMLIT] ADJUST PADDING
+padding = """
+    <style>
+    .block-container {
+        padding-top: 0rem;
+        padding-bottom: 2.5rem;
+    }
+    </style>
+    """
+st.markdown(padding, unsafe_allow_html=True)
 
 # [STREAMLIT] HEADER COLOR
 header_color = """
@@ -311,6 +337,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
