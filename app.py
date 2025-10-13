@@ -198,13 +198,19 @@ with col2:
     table_df = week_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Risk_Level": "Risk Level"})
     table_df = table_df.sort_values(by='Forecasted Cases', ascending=False).reset_index(drop=True)
-    
+
     def color_forecast(val):
-        color = get_color(val)
-        dark_colors = ['#f03b20', '#bd0026', '#800026']
-        text_color = "white" if color in dark_colors else "black"
-        return f'background-color: {color}; color: {text_color}; font-weight: bold;'
+        if pd.isna(val):
+            return 'background-color: #d9d9d9; color: black'
+        
+        color = colormap(val)
+        
+        color_hex = color.lstrip('#')
+        r, g, b = int(color_hex[0:2], 16), int(color_hex[2:4], 16), int(color_hex[4:6], 16)
+        brightness = (r*299 + g*587 + b*114) / 1000
+        
+        text_color = "white" if brightness < 128 else "black"
+        return f'background-color: {color}; color: {text_color}; font-weight: bold'
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
-
