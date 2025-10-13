@@ -132,11 +132,11 @@ with col1:
 
         risk_colors = {
             "Low Risk": "#ffffcc",
-            "Moderate Risk": "#fd8d3c",
-            "High Risk": "#f03b20",
+            "Moderate Risk": "#feb24c",
+            "High Risk": "#fd8d3c",
+            "Very High Risk": "#bd0026",
         }
         
-        # Create categorical colormap
         colormap = cm.StepColormap(
             colors=list(risk_colors.values()),
             vmin=0,
@@ -251,7 +251,7 @@ with col2:
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Risk_Level": "Risk Level"})
     
-    risk_order = ["Low Risk", "Moderate Risk", "High Risk"]
+    risk_order = ["Low Risk", "Moderate Risk", "High Risk", "Very High Risk"]
     table_df["Risk Level"] = pd.Categorical(table_df["Risk Level"], categories=risk_order, ordered=True)
     table_df = table_df.sort_values(by=['Risk Level', 'Forecasted Cases'], ascending=[False, False]).reset_index(drop=True)
 
@@ -270,3 +270,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
