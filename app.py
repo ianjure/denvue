@@ -75,9 +75,6 @@ merged_all = load_data()
 merged_all["Year"] = merged_all["Date"].dt.year
 merged_all["Week"] = merged_all["Date"].dt.isocalendar().week.astype(int)
 
-# ---- PAGE TITLE ----
-st.markdown("## 🦟 Denvue Forecast Dashboard (2025–2027)")
-
 # ---- DASHBOARD LAYOUT ----
 col1, col2 = st.columns(2)
 
@@ -171,9 +168,7 @@ with col1:
     st.subheader(f"🗺️ Dengue Forecast Map — Week {selected_week}, {selected_year}")
     m.to_streamlit(height=580, width=None, add_layer_control=False)
 
-    # --- FILTER CONTROLS BELOW MAP ---
-    st.markdown("### 🔍 Filter Data")
-
+    # --- FILTER CONTROLS ---
     filter_col1, filter_col2 = st.columns(2)
 
     with filter_col1:
@@ -225,3 +220,4 @@ with col2:
 
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, use_container_width=True, height=400)
+
