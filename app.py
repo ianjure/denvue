@@ -136,17 +136,6 @@ with col1:
             "High Risk": "#fd8d3c"
         }
         
-        risk_levels_order = list(risk_colors.keys())
-        risk_to_index = {level: i for i, level in enumerate(risk_levels_order)}
-        
-        colormap = cm.StepColormap(
-            colors=list(risk_colors.values()),
-            vmin=0,
-            vmax=len(risk_colors),
-            index=list(range(len(risk_colors) + 1)),
-            caption="Risk Level",
-        )
-        
         def get_color(risk_level):
             if pd.isna(risk_level):
                 return "#d9d9d9"
@@ -165,6 +154,7 @@ with col1:
         filtered_data["Forecast_Cases_str"] = filtered_data["Forecast_Cases"].apply(lambda x: f"{x:.1f}")
         geojson_data = json.loads(filtered_data.to_json())
         
+        # ADD GEOJSON LAYER
         folium.GeoJson(
             data=geojson_data,
             style_function=style_function,
@@ -177,11 +167,30 @@ with col1:
             name="Forecasted Cases",
         ).add_to(map)
         
-        for i, level in enumerate(risk_levels_order):
-            colormap.colors[i] = risk_colors[level]
-        colormap.caption = "Risk Level"
-        
-        colormap.add_to(map)
+        # CUSTOM LEGEND
+        legend_html = """
+        {% macro html(this, kwargs) %}
+        <div style="
+            position: fixed; 
+            bottom: 30px; left: 30px; width: 180px; 
+            z-index:9999; font-size:14px;
+            background-color: white;
+            border:2px solid grey;
+            border-radius:8px;
+            padding: 10px;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+        ">
+            <b>Risk Level</b><br>
+            <i style="background:#ffffcc;width:18px;height:18px;float:left;margin-right:8px;"></i>Low Risk<br>
+            <i style="background:#feb24c;width:18px;height:18px;float:left;margin-right:8px;"></i>Moderate Risk<br>
+            <i style="background:#fd8d3c;width:18px;height:18px;float:left;margin-right:8px;"></i>High Risk<br>
+            <i style="background:#bd0026;width:18px;height:18px;float:left;margin-right:8px;"></i>Very High Risk
+        </div>
+        {% endmacro %}
+        """
+        legend = MacroElement()
+        legend._template = Template(legend_html)
+        map.get_root().add_child(legend)
         map.to_streamlit(height=580, width=None, add_layer_control=False)
 
         # FILTERS CONTROLS
@@ -276,3 +285,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
