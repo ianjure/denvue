@@ -130,26 +130,30 @@ with col1:
             layer_control=False,
         )
 
-        vmin = filtered_data["Forecast_Cases"].min()
-        vmax = filtered_data["Forecast_Cases"].max() if filtered_data["Forecast_Cases"].max() > 0 else 1
-
-        colormap = cm.LinearColormap(
-            colors=["#ffffcc", "#ffeda0", "#fed976", "#feb24c",
-                    "#fd8d3c", "#f03b20", "#bd0026", "#4a000f"],
-            vmin=vmin,
-            vmax=vmax,
-            caption="Forecasted Dengue Cases"
+        risk_colors = {
+            "Low Risk": "#ffffcc",
+            "Moderate Risk": "#fd8d3c",
+            "High Risk": "#f03b20",
+        }
+        
+        # Create categorical colormap
+        colormap = cm.StepColormap(
+            colors=list(risk_colors.values()),
+            vmin=0,
+            vmax=len(risk_colors),
+            index=list(range(len(risk_colors) + 1)),
+            caption="Risk Level",
         )
-
-        def get_color(value):
-            if pd.isna(value):
+        
+        def get_color(risk_level):
+            if pd.isna(risk_level):
                 return "#d9d9d9"
-            return colormap(value)
+            return risk_colors.get(risk_level, "#d9d9d9")
 
         def style_function(feature):
-            value = feature["properties"].get("Forecast_Cases", 0)
+            risk_level = feature["properties"].get("Risk_Level", None)
             return {
-                "fillColor": get_color(value),
+                "fillColor": get_color(risk_level),
                 "fillOpacity": 1.0,
                 "color": "black",
                 "weight": 1.0,
@@ -246,15 +250,18 @@ with col2:
 
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Risk_Level": "Risk Level"})
-    table_df = table_df.sort_values(by='Forecasted Cases', ascending=False).reset_index(drop=True)
+    
+    risk_order = ["Low Risk", "Moderate Risk", "High Risk"]
+    table_df["Risk Level"] = pd.Categorical(table_df["Risk Level"], categories=risk_order, ordered=True)
+    table_df = table_df.sort_values(by=['Risk Level', 'Forecasted Cases'], ascending=[False, False]).reset_index(drop=True)
 
     def color_forecast(val):
         if pd.isna(val):
             return 'background-color: #d9d9d9; color: black'
         
-        color = colormap(val)
-        
+        color = risk_colors.get(val, "#d9d9d9")
         color_hex = color.lstrip('#')
+
         r, g, b = int(color_hex[0:2], 16), int(color_hex[2:4], 16), int(color_hex[4:6], 16)
         brightness = (r*299 + g*587 + b*114) / 1000
         
@@ -263,4 +270,3 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
-
