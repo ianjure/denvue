@@ -180,6 +180,12 @@ with col1:
     with filter_col1:
         selected_year = st.selectbox("Select Year", available_years, index=default_year_index)
     with filter_col2:
+        model_name_map = {
+            "linear_regression": "Linear Regression",
+            "varmax": "VARMAX",
+            "random_forest": "Random Forest",
+            "xgboost": "XGBoost"
+        }
         model_display_names = [model_name_map[m] for m in merged_all["Model"].unique() if m in model_name_map]
         selected_model_display = st.selectbox("Select Model", model_display_names, 
                                               index=model_display_names.index(model_name_map[default_model_key]))
@@ -225,5 +231,6 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
