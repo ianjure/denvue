@@ -37,7 +37,7 @@ st.markdown(toolbar_bg, unsafe_allow_html=True)
 map_border_style = """
 <style>
 iframe {
-    border: 1px solid #ABABAB !important;
+    border: 1px solid white !important;
     box-sizing: border-box;
     border-radius: 0.5rem;
 }
@@ -56,12 +56,12 @@ div[data-testid="stMetricValue"] {
 """
 st.markdown(metric_value, unsafe_allow_html=True)
 
-# [STREAMLIT] METRIC BACKGROUND COLOR
-metric_background = """
+# [STREAMLIT] METRIC STYLE
+metric_style = """
 <style>
 div[data-testid="stMetric"] {
     background: white;
-    border: 1px solid #ABABAB;
+    border: 1px solid #D5D5D5;
     border-radius: 0.5rem;
     padding-top: 0.6rem;
     padding-bottom: 0.6rem;
@@ -70,7 +70,7 @@ div[data-testid="stMetric"] {
 }
 </style>
 """
-st.markdown(metric_background, unsafe_allow_html=True)
+st.markdown(metric_style, unsafe_allow_html=True)
 
 # LOAD DATA
 @st.cache_data
@@ -302,6 +302,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
