@@ -142,7 +142,7 @@ with col1:
         value = feature["properties"].get("Forecast_Cases", 0)
         return {
             "fillColor": get_color(value),
-            "fillOpacity": 0.75,
+            "fillOpacity": 1.0,
             "color": "black",
             "weight": 1.0,
             "opacity": 1.0
@@ -214,3 +214,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
