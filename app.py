@@ -50,6 +50,11 @@ metric_background = """
 <style>
 div[data-testid="stMetric"] {
     background: white;
+    border-radius: 0.5rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 </style>
 """
@@ -220,4 +225,5 @@ with col2:
 
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, use_container_width=True, height=400)
+
 
