@@ -15,8 +15,8 @@ st.set_page_config(page_title="Denvue Dashboard", layout="wide")
 padding = """
     <style>
     .block-container {
-        padding-top: 2rem;
-        padding-bottom: 0rem;
+        padding-top: 0rem;
+        padding-bottom: 2rem;
     }
     </style>
     """
@@ -290,6 +290,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
 
