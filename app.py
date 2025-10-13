@@ -146,7 +146,14 @@ with col1:
 
     # --- TOOLTIP FORMAT ---
     week_data["Forecast_Cases_str"] = week_data["Forecast_Cases"].apply(lambda x: f"{x:.1f}")
-    geojson_data = json.loads(week_data.to_json(default_handler=str))
+
+    week_data_serializable = week_data.copy()
+    for col in week_data_serializable.columns:
+        week_data_serializable[col] = week_data_serializable[col].apply(
+            lambda x: x.isoformat() if isinstance(x, pd.Timestamp) else x
+        )
+    
+    geojson_data = json.loads(week_data_serializable.to_json())
 
     folium.GeoJson(
         data=geojson_data,
@@ -202,3 +209,4 @@ with col2:
 
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, use_container_width=True, height=400)
+
