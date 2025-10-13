@@ -33,6 +33,16 @@ div[data-testid="stToolbar"] {
 """
 st.markdown(toolbar_bg, unsafe_allow_html=True)
 
+# [STREAMLIT] HEADER COLOR
+header_color = """
+<style>
+div[data-testid="stHeadingWithActionElements"] {
+    color: #234528;
+}
+</style>
+"""
+st.markdown(header_color, unsafe_allow_html=True)
+
 # [LEAFMAP] ADD MAP BORDER
 map_border_style = """
 <style>
@@ -60,6 +70,7 @@ st.markdown(metric_value, unsafe_allow_html=True)
 metric_style = """
 <style>
 div[data-testid="stMetric"] {
+    color: #234528,
     background: white;
     border: 1px solid #E0E0E0;
     border-radius: 0.5rem;
@@ -302,6 +313,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
