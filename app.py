@@ -265,7 +265,7 @@ with col1:
 # RIGHT COLUMN
 with col2:
     # METRICS SECTION
-    st.write("### **Summary Metrics**")
+    st.write("#### **Summary Metrics**")
 
     avg_cases = filtered_data['Forecast_Cases'].mode()
     max_row = filtered_data.loc[filtered_data['Forecast_Cases'].idxmax()]
@@ -277,7 +277,7 @@ with col2:
     m3.metric("Lowest Risk Barangay", min_row['Barangay'])
 
     # TABLE SECTION
-    st.write("### **Risk Ranking by Barangay**")
+    st.write("#### **Risk Ranking by Barangay**")
 
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Risk_Level": "Risk Level"})
@@ -301,3 +301,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=400)
+
