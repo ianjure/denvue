@@ -145,7 +145,7 @@ with col1:
             "fillOpacity": 0.75,
             "color": "black",
             "weight": 1.0,
-            "opacity": 0.9
+            "opacity": 1.0
         }
 
     # --- TOOLTIP FORMAT ---
@@ -207,3 +207,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
