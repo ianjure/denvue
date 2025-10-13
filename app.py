@@ -103,9 +103,6 @@ with col1:
     week_data["Forecast_Cases"] = pd.to_numeric(week_data["Forecast_Cases"], errors="coerce").fillna(0)
     week_data["Forecast_vis"] = week_data["Forecast_Cases"].astype(float)
 
-    # --- MAP VISUALIZATION RANGE ---
-    vmin, vmax = 0, week_data["Forecast_Cases"].max() if not week_data.empty else 1
-
     # --- MAP SECTION ---
     bounds = week_data.total_bounds if not week_data.empty else [124.5, 8.4, 124.8, 8.6]
     buffer = 0.05
@@ -119,23 +116,30 @@ with col1:
         layer_control=False,
     )
 
-    # --- COLOR BINS AND PALETTE ---
-    bins = [0, 5, 10, 25, 50, 75, 100, 200, vmax + 1]
-    colors = ['#ffffcc', '#ffeda0', '#fed976', '#feb24c',
-              '#fd8d3c', '#f03b20', '#bd0026', '#800026']
+    # --- COLOR SCALE SETUP ---
+    vmin = week_data["Forecast_Cases"].min()
+    vmax = week_data["Forecast_Cases"].max()
+    vmax = vmax if vmax > 0 else 1
+
+    colormap = cm.LinearColormap(
+        colors=["#ffffcc", "#ffeda0", "#fed976", "#feb24c",
+                "#fd8d3c", "#f03b20", "#bd0026", "#800026"],
+        vmin=vmin,
+        vmax=vmax,
+        caption="Forecasted Dengue Cases"
+    )
 
     def get_color(value):
-        value = float(value) if pd.notna(value) else 0
-        for i, b in enumerate(bins[1:]):
-            if value < b:
-                return colors[i]
-        return colors[-1]
-
-    colormap = cm.LinearColormap(colors=colors, vmin=vmin, vmax=vmax, caption="Forecasted Dengue Cases")
+        try:
+            if pd.isna(value):
+                return "#d9d9d9"
+            return colormap(value)
+        except Exception:
+            return "#d9d9d9"
 
     # --- STYLE FUNCTION FOR GEOJSON ---
     def style_function(feature):
-        value = feature["properties"].get("Forecast_vis", 0)
+        value = feature["properties"].get("Forecast_Cases", 0)
         return {
             "fillColor": get_color(value),
             "fillOpacity": 0.75,
@@ -191,16 +195,15 @@ with col2:
     # ---- TABLE SECTION ----
     st.subheader("📍Barangays by Forecasted Cases")
 
-    table_df = week_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].sort_values(by='Forecast_Cases', ascending=False).reset_index(drop=True)
-    table_df['Forecasted Cases'] = table_df['Forecast_Cases'].round(1)
-    table_df = table_df.rename(columns={"Barangay": "Barangay", "Risk_Level": "Risk Level"})
-
+    table_df = week_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
+    table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Risk_Level": "Risk Level"})
+    table_df = table_df.sort_values(by='Forecasted Cases', ascending=False).reset_index(drop=True)
+    
     def color_forecast(val):
         color = get_color(val)
         dark_colors = ['#f03b20', '#bd0026', '#800026']
         text_color = "white" if color in dark_colors else "black"
-        return f'background-color: {color}; color: {text_color}; font-weight: bold'
-
+        return f'background-color: {color}; color: {text_color}; font-weight: bold;'
+    
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
-
