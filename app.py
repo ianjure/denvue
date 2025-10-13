@@ -202,6 +202,4 @@ with col2:
         return f'background-color: {color}; color: {text_color}; font-weight: bold'
 
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
-    st.dataframe(styled_table, use_container_width=True, height=400)
-
-
+    st.dataframe(styled_table, width='content', height=500)
