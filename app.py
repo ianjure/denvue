@@ -139,7 +139,7 @@ with col1:
 
         risk_colors = {
             "Low Risk": "#ffffcc",
-            "Moderate Risk": "#fd8d3c",
+            "Medium Risk": "#fd8d3c",
             "High Risk": "#bd0026"
         }
         
@@ -288,10 +288,5 @@ with col2:
         text_color = "white" if brightness < 128 else "black"
         return f'background-color: {color}; color: {text_color}; font-weight: bold'
     
-    styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
+    styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=500)
-
-
-
-
-
