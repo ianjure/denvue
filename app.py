@@ -106,7 +106,6 @@ with col1:
 
     # --- ENSURE NUMERIC ---
     week_data["Forecast_Cases"] = pd.to_numeric(week_data["Forecast_Cases"], errors="coerce").fillna(0)
-    # week_data["Forecast_vis"] = week_data["Forecast_Cases"].astype(float)
 
     # --- MAP SECTION ---
     bounds = week_data.total_bounds if not week_data.empty else [124.5, 8.4, 124.8, 8.6]
@@ -194,7 +193,7 @@ with col1:
         model_data = merged_all[merged_all["Model"] == selected_model]
         year_data = model_data[model_data["Year"] == selected_year].copy()
         available_weeks = sorted(year_data["Week"].unique())
-        selected_week = st.select_slider("Select Week", options=available_weeks, value=max(available_weeks))
+        selected_week = st.select_slider("Select Week", options=available_weeks, value=min(available_weeks))
 
 # ---- RIGHT COLUMN ----
 with col2:
@@ -231,6 +230,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
 
