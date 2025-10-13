@@ -125,15 +125,21 @@ with col1:
             max_lat=bounds[3]+buffer,
             min_lon=bounds[0]-buffer,
             max_lon=bounds[2]+buffer,
-            control_scale=False,
-            search_control=False,
+            attribution_control=False,
+            draw_control=False,
+            measure_control=False,
+            fullscreen_control=False,
+            locate_control=False,
+            minimap_control=False,
+            scale_control=False,
             layer_control=False,
+            search_control=False,
         )
 
         risk_colors = {
             "Low Risk": "#ffffcc",
-            "Moderate Risk": "#feb24c",
-            "High Risk": "#fd8d3c"
+            "Moderate Risk": "#fd8d3c",
+            "High Risk": "#bd0026"
         }
         
         def get_color(risk_level):
@@ -182,9 +188,8 @@ with col1:
         ">
             <b>Risk Level</b><br>
             <i style="background:#ffffcc;width:18px;height:18px;float:left;margin-right:8px;"></i>Low Risk<br>
-            <i style="background:#feb24c;width:18px;height:18px;float:left;margin-right:8px;"></i>Moderate Risk<br>
-            <i style="background:#fd8d3c;width:18px;height:18px;float:left;margin-right:8px;"></i>High Risk<br>
-            <i style="background:#bd0026;width:18px;height:18px;float:left;margin-right:8px;"></i>Very High Risk
+            <i style="background:#fd8d3c;width:18px;height:18px;float:left;margin-right:8px;"></i>Moderate Risk<br>
+            <i style="background:#bd0026;width:18px;height:18px;float:left;margin-right:8px;"></i>High Risk<br>
         </div>
         {% endmacro %}
         """
@@ -285,5 +290,6 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
