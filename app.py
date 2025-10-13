@@ -40,21 +40,29 @@ col1, col2 = st.columns([2.5, 1])
 with col1:
     # --- YEAR SELECTOR ---
     available_years = sorted(merged_all["Year"].unique())
-    selected_year = st.selectbox("📅 Select Year", available_years, index=len(available_years)-1)
+    selected_year = st.selectbox("📅 Select Year", available_years, index=len(available_years) - 1)
 
-    year_data = merged_all[merged_all["Year"] == selected_year]
+    year_data = merged_all[merged_all["Year"] == selected_year].copy()
     available_weeks = sorted(year_data["Week"].unique())
-    selected_week = st.slider("🗓️ Select Week", min_value=min(available_weeks), max_value=max(available_weeks), value=max(available_weeks))
+    selected_week = st.slider(
+        "🗓️ Select Week",
+        min_value=min(available_weeks),
+        max_value=max(available_weeks),
+        value=max(available_weeks)
+    )
 
     # --- FILTER FOR SELECTED WEEK ---
     week_data = year_data[year_data["Week"] == selected_week].copy()
 
+    if "Date" in week_data.columns:
+        week_data["Date"] = week_data["Date"].astype(str)
+
     # --- MAP VISUALIZATION RANGE ---
-    vmin, vmax = 0, week_data["Forecast_Cases"].max()
+    vmin, vmax = 0, week_data["Forecast_Cases"].max() if not week_data.empty else 1
     week_data["Forecast_vis"] = week_data["Forecast_Cases"].clip(vmin, vmax)
 
     # --- MAP SECTION ---
-    bounds = week_data.total_bounds
+    bounds = week_data.total_bounds if not week_data.empty else [124.5, 8.4, 124.8, 8.6]
     buffer = 0.05
     m = leafmap.Map(
         location=[8.48, 124.65],
@@ -74,7 +82,8 @@ with col1:
 
     # --- COLOR BINS AND PALETTE ---
     bins = [0, 5, 10, 25, 50, 75, 100, 200, vmax]
-    colors = ['#ffffcc', '#ffeda0', '#fed976', '#feb24c', '#fd8d3c', '#f03b20', '#bd0026', '#800026']
+    colors = ['#ffffcc', '#ffeda0', '#fed976', '#feb24c',
+              '#fd8d3c', '#f03b20', '#bd0026', '#800026']
 
     def get_color(value):
         for i, b in enumerate(bins[1:]):
@@ -82,19 +91,26 @@ with col1:
                 return colors[i]
         return colors[-1]
 
-    colormap = cm.LinearColormap(colors=colors, vmin=vmin, vmax=vmax, caption="Forecasted Dengue Cases")
+    colormap = cm.LinearColormap(
+        colors=colors,
+        vmin=vmin,
+        vmax=vmax,
+        caption="Forecasted Dengue Cases"
+    )
 
+    # --- STYLE FUNCTION FOR GEOJSON ---
     def style_function(feature):
-        value = feature['properties']['Forecast_vis']
+        value = feature["properties"].get("Forecast_vis", 0)
         return {
-            'fillColor': get_color(value),
-            'fillOpacity': 0.75,
-            'color': 'black',
-            'weight': 1.0,
-            'opacity': 0.9
+            "fillColor": get_color(value),
+            "fillOpacity": 0.75,
+            "color": "black",
+            "weight": 1.0,
+            "opacity": 0.9
         }
 
-    week_data['Forecast_Cases_str'] = week_data['Forecast_Cases'].apply(lambda x: f"{x:.1f}")
+    # --- TOOLTIP FORMAT ---
+    week_data["Forecast_Cases_str"] = week_data["Forecast_Cases"].apply(lambda x: f"{x:.1f}")
     geojson_data = json.loads(week_data.to_json())
 
     folium.GeoJson(
@@ -113,6 +129,7 @@ with col1:
 
     st.subheader(f"🗺️ Dengue Forecast Map — Week {selected_week}, {selected_year}")
     m.to_streamlit(height=580, width=None, add_layer_control=False)
+
 
 # ---- RIGHT COLUMN ----
 with col2:
@@ -150,3 +167,4 @@ with col2:
 
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, use_container_width=True, height=400)
+
