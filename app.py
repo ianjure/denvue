@@ -85,115 +85,136 @@ col1, col2 = st.columns(2)
 
 # ---- LEFT COLUMN ----
 with col1:
-    # --- DEFAULTS ---
-    available_years = sorted(merged_all["Year"].unique())
-    default_year_index = available_years.index(2025) if 2025 in available_years else len(available_years) - 1
-    default_model_key = "varmax" if "varmax" in merged_all["Model"].unique() else merged_all["Model"].unique()[0]
+    with st.container():
+        # --- DEFAULTS ---
+        available_years = sorted(merged_all["Year"].unique())
+        default_year = 2025 if 2025 in available_years else available_years[-1]
+        default_model = "varmax" if "varmax" in merged_all["Model"].unique() else merged_all["Model"].unique()[0]
 
-    # --- INITIAL FILTER ---
-    selected_year = available_years[default_year_index]
-    selected_model = default_model_key
-    
-    model_data = merged_all[merged_all["Model"] == selected_model]
-    year_data = model_data[model_data["Year"] == selected_year].copy()
-    available_weeks = sorted(year_data["Week"].unique())
-    selected_week = min(available_weeks)
+        # --- SESSION STATE INITIALIZATION ---
+        if "selected_year" not in st.session_state:
+            st.session_state.selected_year = default_year
+        if "selected_model" not in st.session_state:
+            st.session_state.selected_model = default_model
+        if "selected_week" not in st.session_state:
+            default_weeks = sorted(
+                merged_all[merged_all["Year"] == st.session_state.selected_year]["Week"].unique()
+            )
+            st.session_state.selected_week = min(default_weeks) if default_weeks else 1
 
-    week_data = year_data[year_data["Week"] == selected_week].copy()
+        # --- FILTERED DATA ---
+        filtered_data = merged_all[
+            (merged_all["Model"] == st.session_state.selected_model)
+            & (merged_all["Year"] == st.session_state.selected_year)
+            & (merged_all["Week"] == st.session_state.selected_week)
+        ].copy()
 
-    if "Date" in week_data.columns:
-        week_data["Date"] = week_data["Date"].astype(str)
+        filtered_data["Forecast_Cases"] = pd.to_numeric(filtered_data["Forecast_Cases"], errors="coerce").fillna(0)
 
-    # --- ENSURE NUMERIC ---
-    week_data["Forecast_Cases"] = pd.to_numeric(week_data["Forecast_Cases"], errors="coerce").fillna(0)
+        # --- MAP SECTION ---
+        st.subheader(f"🗺️ Dengue Forecast Map — Week {st.session_state.selected_week}, {st.session_state.selected_year}")
+        bounds = filtered_data.total_bounds
+        buffer = 0.05
+        map = leafmap.Map(
+            location=[8.48, 124.65],
+            zoom_start=10,
+            min_zoom=10,
+            max_zoom=18,
+            tiles="CartoDB.PositronNoLabels",
+            max_bounds=True,
+            min_lat=bounds[1]-buffer,
+            max_lat=bounds[3]+buffer,
+            min_lon=bounds[0]-buffer,
+            max_lon=bounds[2]+buffer,
+            control_scale=False,
+            search_control=False,
+            layer_control=False,
+        )
 
-    # --- MAP SECTION ---
-    bounds = week_data.total_bounds if not week_data.empty else [124.5, 8.4, 124.8, 8.6]
-    buffer = 0.05
-    m = leafmap.Map(
-        location=[8.48, 124.65],
-        zoom_start=11,
-        min_zoom=10,
-        max_zoom=18,
-        tiles="CartoDB.PositronNoLabels",
-        control_scale=False,
-        layer_control=False,
-    )
+        vmin = filtered_data["Forecast_Cases"].min()
+        vmax = filtered_data["Forecast_Cases"].max() if filtered_data["Forecast_Cases"].max() > 0 else 1
 
-    # --- COLOR SCALE SETUP ---
-    vmin = week_data["Forecast_Cases"].min()
-    vmax = week_data["Forecast_Cases"].max()
-    vmax = vmax if vmax > 0 else 1
+        colormap = cm.LinearColormap(
+            colors=["#ffffcc", "#ffeda0", "#fed976", "#feb24c",
+                    "#fd8d3c", "#f03b20", "#bd0026", "#800026"],
+            vmin=vmin,
+            vmax=vmax,
+            caption="Forecasted Dengue Cases"
+        )
 
-    colormap = cm.LinearColormap(
-        colors=["#ffffcc", "#ffeda0", "#fed976", "#feb24c",
-                "#fd8d3c", "#f03b20", "#bd0026", "#800026"],
-        vmin=vmin,
-        vmax=vmax,
-        caption="Forecasted Dengue Cases"
-    )
-
-    def get_color(value):
-        try:
+        def get_color(value):
             if pd.isna(value):
                 return "#d9d9d9"
             return colormap(value)
-        except Exception:
-            return "#d9d9d9"
 
-    # --- STYLE FUNCTION FOR GEOJSON ---
-    def style_function(feature):
-        value = feature["properties"].get("Forecast_Cases", 0)
-        return {
-            "fillColor": get_color(value),
-            "fillOpacity": 1.0,
-            "color": "black",
-            "weight": 1.0,
-            "opacity": 1.0
-        }
+        def style_function(feature):
+            value = feature["properties"].get("Forecast_Cases", 0)
+            return {
+                "fillColor": get_color(value),
+                "fillOpacity": 1.0,
+                "color": "black",
+                "weight": 1.0,
+                "opacity": 1.0,
+            }
 
-    # --- TOOLTIP FORMAT ---
-    week_data = week_data.copy()
-    week_data["Forecast_Cases_str"] = week_data["Forecast_Cases"].apply(lambda x: f"{x:.1f}")
-    geojson_data = json.loads(week_data.to_json())
+        filtered_data["Forecast_Cases_str"] = filtered_data["Forecast_Cases"].apply(lambda x: f"{x:.1f}")
+        geojson_data = json.loads(filtered_data.to_json())
 
-    folium.GeoJson(
-        data=geojson_data,
-        style_function=style_function,
-        tooltip=folium.GeoJsonTooltip(
-            fields=["Barangay", "Forecast_Cases_str", "Risk_Level"],
-            aliases=["Barangay:", "Forecasted Cases:", "Risk Level:"],
-            style=("font-weight: bold; font-size: 12px;"),
-            sticky=True
-        ),
-        name="Forecasted Cases",
-    ).add_to(m)
+        folium.GeoJson(
+            data=geojson_data,
+            style_function=style_function,
+            tooltip=folium.GeoJsonTooltip(
+                fields=["Barangay", "Forecast_Cases_str", "Risk_Level"],
+                aliases=["Barangay:", "Forecasted Cases:", "Risk Level:"],
+                style=("font-weight: bold; font-size: 12px;"),
+                sticky=True,
+            ),
+            name="Forecasted Cases",
+        ).add_to(map)
 
-    colormap.add_to(m)
+        colormap.add_to(map)
+        map.to_streamlit(height=580, width=None, add_layer_control=False)
 
-    st.subheader(f"🗺️ Dengue Forecast Map — Week {selected_week}, {selected_year}")
-    m.to_streamlit(height=580, width=None, add_layer_control=False)
+        # --- FILTERS CONTROLS ---
+        filter_col1, filter_col2, filter_col3 = st.columns([1, 1, 2])
 
-    # --- FILTER CONTROLS ---
-    filter_col1, filter_col2, filter_col3 = st.columns([1, 1, 2])
-    with filter_col1:
-        selected_year = st.selectbox("Select Year", available_years, index=default_year_index)
-    with filter_col2:
-        model_name_map = {
-            "linear_regression": "Linear Regression",
-            "varmax": "VARMAX",
-            "random_forest": "Random Forest",
-            "xgboost": "XGBoost"
-        }
-        model_display_names = [model_name_map[m] for m in merged_all["Model"].unique() if m in model_name_map]
-        selected_model_display = st.selectbox("Select Model", model_display_names, 
-                                              index=model_display_names.index(model_name_map[default_model_key]))
-        selected_model = [k for k, v in model_name_map.items() if v == selected_model_display][0]
-    with filter_col3:
-        model_data = merged_all[merged_all["Model"] == selected_model]
-        year_data = model_data[model_data["Year"] == selected_year].copy()
-        available_weeks = sorted(year_data["Week"].unique())
-        selected_week = st.select_slider("Select Week", options=available_weeks, value=min(available_weeks))
+        with filter_col1:
+            selected_year = st.selectbox(
+                "Select Year",
+                available_years,
+                index=available_years.index(st.session_state.selected_year),
+                key="selected_year",
+            )
+
+        with filter_col2:
+            model_name_map = {
+                "linear_regression": "Linear Regression",
+                "varmax": "VARMAX",
+                "random_forest": "Random Forest",
+                "xgboost": "XGBoost",
+            }
+            model_display_names = [
+                model_name_map[m] for m in merged_all["Model"].unique() if m in model_name_map
+            ]
+            model_display_to_key = {v: k for k, v in model_name_map.items()}
+            selected_model_display = st.selectbox(
+                "Select Model",
+                model_display_names,
+                index=model_display_names.index(model_name_map[st.session_state.selected_model]),
+                key="selected_model_display",
+            )
+            st.session_state.selected_model = model_display_to_key[selected_model_display]
+
+        with filter_col3:
+            model_data = merged_all[merged_all["Model"] == st.session_state.selected_model]
+            year_data = model_data[model_data["Year"] == st.session_state.selected_year].copy()
+            available_weeks = sorted(year_data["Week"].unique())
+            st.session_state.selected_week = st.select_slider(
+                "Select Week",
+                options=available_weeks,
+                value=st.session_state.selected_week if st.session_state.selected_week in available_weeks else min(available_weeks),
+                key="selected_week",
+            )
 
 # ---- RIGHT COLUMN ----
 with col2:
@@ -230,6 +251,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
 
