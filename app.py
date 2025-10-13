@@ -28,6 +28,7 @@ map_border_style = """
 iframe {
     border: 1px solid white !important;
     box-sizing: border-box;
+    border-radius: 0.5rem;
 }
 </style>
 """
@@ -289,6 +290,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
 
