@@ -222,16 +222,9 @@ with col1:
         map.to_streamlit(height=450, width=None, add_layer_control=False)
 
         # FILTERS CONTROLS
-        filter_col1, filter_col2, filter_col3 = st.columns([1, 1, 2])
+        filter_col1, filter_col2, filter_col3 = st.columns([1, 2, 3])
 
         with filter_col1:
-            selected_year = st.selectbox(
-                "Select Year",
-                available_years,
-                index=available_years.index(st.session_state.selected_year)
-            )
-        
-        with filter_col2:
             model_name_map = {
                 "linear_regression": "Linear Regression",
                 "varmax": "VARMAX",
@@ -249,6 +242,13 @@ with col1:
                 index=model_display_names.index(model_name_map[st.session_state.selected_model]),
             )
             selected_model = model_display_to_key[selected_model_display]
+        
+        with filter_col2:
+            selected_year = st.selectbox(
+                "Select Year",
+                available_years,
+                index=available_years.index(st.session_state.selected_year)
+            )
         
         with filter_col3:
             model_data = merged_all[merged_all["Model"] == selected_model]
@@ -307,3 +307,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
