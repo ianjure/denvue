@@ -8,9 +8,8 @@ import leafmap.foliumap as leafmap
 import branca.colormap as cm
 import json
 
-# ---- PAGE CONFIG ----
+# PAGE CONFIG
 st.set_page_config(page_title="Denvue Dashboard", layout="wide")
-
 
 # [STREAMLIT] ADJUST PADDING
 padding = """
@@ -60,8 +59,7 @@ div[data-testid="stMetric"] {
 """
 st.markdown(metric_background, unsafe_allow_html=True)
 
-
-# ---- LOAD DATA ----
+# LOAD DATA
 @st.cache_data
 def load_data():
     cdo_barangays = pd.read_csv("cdo_barangays.csv")
@@ -76,15 +74,15 @@ def load_data():
 
 merged_all = load_data()
 
-# ---- DATA PREP ----
+# DATA PREPARATION
 merged_all["Year"] = merged_all["Date"].dt.year
 merged_all["Week"] = merged_all["Date"].dt.isocalendar().week.astype(int)
 merged_all["Date"] = merged_all["Date"].astype(str)
 
-# ---- DASHBOARD LAYOUT ----
+# DASHBOARD LAYOUT
 col1, col2 = st.columns(2)
 
-# ---- LEFT COLUMN ----
+# LEFT COLUMN
 with col1:
     with st.container():
         # --- DEFAULTS ---
@@ -92,7 +90,7 @@ with col1:
         default_year = 2025 if 2025 in available_years else available_years[-1]
         default_model = "varmax" if "varmax" in merged_all["Model"].unique() else merged_all["Model"].unique()[0]
 
-        # --- SESSION STATE INITIALIZATION ---
+        # SESSION STATE INITIALIZATION
         if "selected_year" not in st.session_state:
             st.session_state.selected_year = default_year
         if "selected_model" not in st.session_state:
@@ -103,7 +101,7 @@ with col1:
             )
             st.session_state.selected_week = min(default_weeks) if default_weeks else 1
 
-        # --- FILTERED DATA ---
+        # FILTER DATA
         filtered_data = merged_all[
             (merged_all["Model"] == st.session_state.selected_model)
             & (merged_all["Year"] == st.session_state.selected_year)
@@ -112,7 +110,7 @@ with col1:
 
         filtered_data["Forecast_Cases"] = pd.to_numeric(filtered_data["Forecast_Cases"], errors="coerce").fillna(0)
 
-        # --- MAP SECTION ---
+        # MAP SECTION
         st.subheader(f"🗺️ Dengue Forecast Map — Week {st.session_state.selected_week}, {st.session_state.selected_year}")
         bounds = filtered_data.total_bounds
         buffer = 0.05
@@ -176,7 +174,7 @@ with col1:
         colormap.add_to(map)
         map.to_streamlit(height=580, width=None, add_layer_control=False)
 
-        # --- FILTERS CONTROLS ---
+        # FILTERS CONTROLS
         filter_col1, filter_col2, filter_col3 = st.columns([1, 1, 2])
 
         with filter_col1:
@@ -214,10 +212,14 @@ with col1:
                 options=available_weeks,
                 value=st.session_state.selected_week if st.session_state.selected_week in available_weeks else min(available_weeks)
             )
+
+        # RERUN TO SHOW CHANGES
+        st.rerun()
             
-# ---- RIGHT COLUMN ----
+# RIGHT COLUMN
 with col2:
-    st.subheader("🔍 Summary Metrics")
+    # METRICS SECTION
+    st.subheader("🔍Summary Metrics")
 
     avg_cases = filtered_data['Forecast_Cases'].mode()
     max_row = filtered_data.loc[filtered_data['Forecast_Cases'].idxmax()]
@@ -228,7 +230,7 @@ with col2:
     m2.metric("Highest Risk Barangay", max_row['Barangay'])
     m3.metric("Lowest Risk Barangay", min_row['Barangay'])
 
-    # ---- TABLE SECTION ----
+    # TABLE SECTION
     st.subheader("📍Barangays by Forecasted Cases")
 
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
