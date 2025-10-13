@@ -225,5 +225,3 @@ with col2:
 
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, use_container_width=True, height=400)
-
-
