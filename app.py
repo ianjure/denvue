@@ -123,7 +123,7 @@ with col1:
         filtered_data["Forecast_Cases"] = pd.to_numeric(filtered_data["Forecast_Cases"], errors="coerce").fillna(0)
 
         # MAP SECTION
-        st.write(f"### **Dengue Risk Distribution Map**")
+        st.write(f"#### **Dengue Risk Distribution Map**")
         bounds = filtered_data.total_bounds
         buffer = 0.05
         map = leafmap.Map(
@@ -207,7 +207,7 @@ with col1:
         legend = MacroElement()
         legend._template = Template(legend_html)
         map.get_root().add_child(legend)
-        map.to_streamlit(height=400, width=None, add_layer_control=False)
+        map.to_streamlit(height=450, width=None, add_layer_control=False)
 
         # FILTERS CONTROLS
         filter_col1, filter_col2, filter_col3 = st.columns([1, 1, 2])
@@ -301,4 +301,5 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=450)
+
 
