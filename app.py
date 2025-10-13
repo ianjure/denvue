@@ -211,7 +211,7 @@ with col1:
         ">
             <b>Risk Level</b><br>
             <i style="background:#ffffcc;width:18px;height:18px;float:left;margin-right:8px;"></i>Low Risk<br>
-            <i style="background:#fd8d3c;width:18px;height:18px;float:left;margin-right:8px;"></i>Moderate Risk<br>
+            <i style="background:#fd8d3c;width:18px;height:18px;float:left;margin-right:8px;"></i>Medium Risk<br>
             <i style="background:#bd0026;width:18px;height:18px;float:left;margin-right:8px;"></i>High Risk<br>
         </div>
         {% endmacro %}
@@ -294,7 +294,7 @@ with col2:
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Risk_Level": "Risk Level"})
     
-    risk_order = ["Low Risk", "Moderate Risk", "High Risk"]
+    risk_order = ["Low Risk", "Medium Risk", "High Risk"]
     table_df["Risk Level"] = pd.Categorical(table_df["Risk Level"], categories=risk_order, ordered=True)
     table_df = table_df.sort_values(by=['Risk Level', 'Forecasted Cases'], ascending=[False, False]).reset_index(drop=True)
 
@@ -313,9 +313,3 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
-
-
-
-
-
-
