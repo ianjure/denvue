@@ -12,28 +12,16 @@ import json
 st.set_page_config(page_title="Denvue Dashboard", layout="wide")
 st.logo(image="logo.png", size="large")
 
-# [STREAMLIT] HIDE MENU
-hide_menu = """
+# [STREAMLIT] ADJUST PADDING
+padding = """
     <style>
-    #MainMenu {
-        visibility: hidden;
-    }
-    footer {
-        visibility: hidden;
-    }
-    div[data-testid="stDecoration"] {
-        visibility: hidden;
-        height: 0%;
-        position: fixed;
-    }
-    div[data-testid="stStatusWidget"] {
-        visibility: hidden;
-        height: 0%;
-        position: fixed;
+    .block-container {
+        padding-top: 0rem;
+        padding-bottom: 2.5rem;
     }
     </style>
     """
-st.markdown(hide_menu, unsafe_allow_html=True)
+st.markdown(padding, unsafe_allow_html=True)
 
 # [STREAMLIT] TOOLBAR BACKGROUND
 toolbar_bg = """
@@ -45,16 +33,15 @@ div[data-testid="stToolbar"] {
 """
 st.markdown(toolbar_bg, unsafe_allow_html=True)
 
-# [STREAMLIT] ADJUST PADDING
-padding = """
+# [STREAMLIT] HIDE TOOLBAR ACTIONS
+hide_toolbar_actions = """
     <style>
-    .block-container {
-        padding-top: 0rem;
-        padding-bottom: 2.5rem;
+    div[data-testid="stToolbarActions"] {
+        display: none;
     }
     </style>
     """
-st.markdown(padding, unsafe_allow_html=True)
+st.markdown(hide_toolbar_actions, unsafe_allow_html=True)
 
 # [STREAMLIT] HEADER COLOR
 header_color = """
@@ -334,6 +321,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
