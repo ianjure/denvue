@@ -60,6 +60,10 @@ div[data-testid="stMetric"] {
 """
 st.markdown(metric_background, unsafe_allow_html=True)
 
+forecasts = pd.read_csv("all_models_forecasts.csv")
+check = forecasts.groupby(["Barangay", "Week"])["Risk_Level"].apply(lambda x: x.isna().sum()).reset_index(name="None_Count")
+st.write(check[check["None_Count"] > 0])
+
 # LOAD DATA
 @st.cache_data
 def load_data():
@@ -70,10 +74,6 @@ def load_data():
     forecasts = pd.read_csv("all_models_forecasts.csv")
     forecasts["Date"] = pd.to_datetime(forecasts["Date"])
     merged = forecasts.merge(gdf_barangays, on="Barangay", how="left")
-
-    unmatched = merged[merged["Geometry"].isna()]
-    st.write("⚠️ Unmatched barangays (no geometry):", unmatched["Barangay"].unique())
-
     merged_gdf = gpd.GeoDataFrame(merged, geometry="Geometry", crs="EPSG:4326")
     return merged_gdf
 
@@ -294,4 +294,5 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
