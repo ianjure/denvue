@@ -16,7 +16,7 @@ padding = """
     <style>
     .block-container {
         padding-top: 0rem;
-        padding-bottom: 2rem;
+        padding-bottom: 4rem;
     }
     </style>
     """
@@ -290,6 +290,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
 
