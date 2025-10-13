@@ -300,15 +300,9 @@ with col2:
 
     def color_forecast(val):
         if pd.isna(val):
-            return 'background-color: #d9d9d9; color: black'
-        
-        color = risk_colors.get(val, "#d9d9d9")
-        color_hex = color.lstrip('#')
-
-        r, g, b = int(color_hex[0:2], 16), int(color_hex[2:4], 16), int(color_hex[4:6], 16)
-        brightness = (r*299 + g*587 + b*114) / 1000
-        
-        text_color = "white" if brightness < 128 else "black"
+            return 'background-color: #ffffcc; color: black'
+        color = risk_colors.get(val, "#ffffcc")
+        text_color = "white" if color != "#ffffcc" else "black"
         return f'background-color: {color}; color: {text_color}; font-weight: bold'
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
