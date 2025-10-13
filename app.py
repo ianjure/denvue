@@ -280,8 +280,12 @@ with col2:
     st.write("#### **Summary Metrics**")
 
     avg_cases = filtered_data['Forecast_Cases'].mode()[0]
-    max_row = filtered_data.loc[filtered_data['Forecast_Cases'].idxmax()]
-    min_row = filtered_data.loc[filtered_data['Forecast_Cases'].idxmin()]
+
+    risk_order = {"Low Risk": 1, "Medium Risk": 2, "High Risk": 3}
+    filtered_data["Risk_Code"] = filtered_data["Risk_Level"].map(risk_order)
+    
+    max_row = filtered_data.loc[filtered_data["Risk_Code"].idxmax()]
+    min_row = filtered_data.loc[filtered_data["Risk_Code"].idxmin()]
 
     m1, m2, m3 = st.columns(3)
     m1.metric("Average Forecasted Cases", f"{avg_cases}")
@@ -307,5 +311,6 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
