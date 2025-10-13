@@ -178,12 +178,12 @@ with col1:
         filter_col1, filter_col2, filter_col3 = st.columns([1, 1, 2])
 
         with filter_col1:
-            st.session_state.selected_year = st.selectbox(
+            selected_year = st.selectbox(
                 "Select Year",
                 available_years,
                 index=available_years.index(st.session_state.selected_year)
             )
-
+        
         with filter_col2:
             model_name_map = {
                 "linear_regression": "Linear Regression",
@@ -195,23 +195,37 @@ with col1:
                 model_name_map[m] for m in merged_all["Model"].unique() if m in model_name_map
             ]
             model_display_to_key = {v: k for k, v in model_name_map.items()}
+        
             selected_model_display = st.selectbox(
                 "Select Model",
                 model_display_names,
                 index=model_display_names.index(model_name_map[st.session_state.selected_model]),
             )
-            st.session_state.selected_model = model_display_to_key[selected_model_display]
-
+            selected_model = model_display_to_key[selected_model_display]
+        
         with filter_col3:
-            model_data = merged_all[merged_all["Model"] == st.session_state.selected_model]
-            year_data = model_data[model_data["Year"] == st.session_state.selected_year].copy()
+            model_data = merged_all[merged_all["Model"] == selected_model]
+            year_data = model_data[model_data["Year"] == selected_year].copy()
             available_weeks = sorted(year_data["Week"].unique())
-
-            st.session_state.selected_week = st.select_slider(
+        
+            selected_week = st.select_slider(
                 "Select Week",
                 options=available_weeks,
-                value=st.session_state.selected_week if st.session_state.selected_week in available_weeks else min(available_weeks)
+                value=st.session_state.selected_week
+                if st.session_state.selected_week in available_weeks
+                else min(available_weeks),
             )
+        
+        # UPDATE SESSION STATE ON CHANGE
+        if (
+            selected_year != st.session_state.selected_year
+            or selected_model != st.session_state.selected_model
+            or selected_week != st.session_state.selected_week
+        ):
+            st.session_state.selected_year = selected_year
+            st.session_state.selected_model = selected_model
+            st.session_state.selected_week = selected_week
+            st.rerun()
             
 # RIGHT COLUMN
 with col2:
@@ -249,3 +263,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
