@@ -178,13 +178,12 @@ with col1:
         {% macro html(this, kwargs) %}
         <div style="
             position: fixed; 
-            bottom: 30px; left: 30px; width: 180px; 
+            bottom: 10px; left: 10px; width: 180px; 
             z-index:9999; font-size:14px;
             background-color: white;
             border:2px solid grey;
             border-radius:8px;
             padding: 10px;
-            box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
         ">
             <b>Risk Level</b><br>
             <i style="background:#ffffcc;width:18px;height:18px;float:left;margin-right:8px;"></i>Low Risk<br>
@@ -290,6 +289,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
 
