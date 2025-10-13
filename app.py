@@ -181,7 +181,7 @@ with col1:
                 "opacity": 1.0,
             }
         
-        filtered_data["Forecast_Cases_str"] = filtered_data["Forecast_Cases"].apply(lambda x: f"{x:.1f}")
+        filtered_data["Forecast_Cases_str"] = filtered_data["Forecast_Cases"].apply(lambda x: f"{x}")
         geojson_data = json.loads(filtered_data.to_json())
         
         # ADD GEOJSON LAYER
@@ -311,6 +311,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
