@@ -79,6 +79,7 @@ merged_all = load_data()
 # ---- DATA PREP ----
 merged_all["Year"] = merged_all["Date"].dt.year
 merged_all["Week"] = merged_all["Date"].dt.isocalendar().week.astype(int)
+merged_all["Date"] = merged_all["Date"].astype(str)
 
 # ---- DASHBOARD LAYOUT ----
 col1, col2 = st.columns(2)
@@ -251,6 +252,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Forecasted Cases'])
     st.dataframe(styled_table, width='stretch', height=500)
+
 
 
 
