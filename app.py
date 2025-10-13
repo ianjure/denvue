@@ -70,6 +70,10 @@ def load_data():
     forecasts = pd.read_csv("all_models_forecasts.csv")
     forecasts["Date"] = pd.to_datetime(forecasts["Date"])
     merged = forecasts.merge(gdf_barangays, on="Barangay", how="left")
+
+    unmatched = merged[merged["Geometry"].isna()]
+    st.write("⚠️ Unmatched barangays (no geometry):", unmatched["Barangay"].unique())
+
     merged_gdf = gpd.GeoDataFrame(merged, geometry="Geometry", crs="EPSG:4326")
     return merged_gdf
 
@@ -290,3 +294,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=500)
+
