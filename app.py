@@ -61,6 +61,7 @@ metric_background = """
 <style>
 div[data-testid="stMetric"] {
     background: white;
+    border: 1px solid #5D5D5D;
     border-radius: 0.5rem;
     padding-top: 0.6rem;
     padding-bottom: 0.6rem;
@@ -301,4 +302,5 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
