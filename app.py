@@ -279,7 +279,7 @@ with col1:
                 # Add a custom onClick event to update the title dynamically
                 tooltip=row["Barangay"],
                 popup=row["Barangay"],
-            ).add_to(m)
+            ).add_to(map)
         
         # Add custom JavaScript for dynamic updates
         update_js = """
@@ -299,7 +299,7 @@ with col1:
         document.addEventListener("DOMContentLoaded", attachClickEvents);
         </script>
         """
-        m.get_root().html.add_child(folium.Element(update_js))
+        map.get_root().html.add_child(folium.Element(update_js))
         
         # CUSTOM LEGEND
         legend_html = """
@@ -416,6 +416,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
