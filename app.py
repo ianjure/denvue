@@ -211,26 +211,47 @@ with col1:
         ).add_to(map)
 
         # ADD BARANGAY NAME LABELS
+        label_markers = []
         for _, row in filtered_data.iterrows():
-            centroid = row["Geometry"].centroid
-            lat, lon = centroid.y, centroid.x
-            
-            folium.map.Marker(
+            point = row["geometry"].representative_point()
+            lat, lon = point.y, point.x
+            marker = folium.map.Marker(
                 [lat, lon],
                 icon=folium.DivIcon(
                     html=f"""
-                    <div style="
+                    <div class="bgy-label" style="
                         font-size: 10px;
                         font-weight: bold;
                         text-align: center;
                         color: black;
                         text-shadow: 1px 1px 2px white;
+                        display: none;
                     ">
                         {row['Barangay']}
                     </div>
                     """
                 )
-            ).add_to(map)
+            )
+            marker.add_to(map)
+            label_markers.append(marker)
+        
+        # --- JavaScript to toggle visibility based on zoom ---
+        # Show labels only when zoom >= 13 (adjust threshold as needed)
+        zoom_js = """
+        <script>
+        function toggleLabels(e) {
+            const zoom = e.target.getZoom();
+            const labels = document.getElementsByClassName('bgy-label');
+            for (let i = 0; i < labels.length; i++) {
+                labels[i].style.display = zoom >= 13 ? 'block' : 'none';
+            }
+        }
+        map.on('zoomend', toggleLabels);
+        map.on('load', toggleLabels);
+        </script>
+        """
+        
+        map.get_root().html.add_child(folium.Element(zoom_js))
         
         # CUSTOM LEGEND
         legend_html = """
@@ -346,6 +367,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
