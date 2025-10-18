@@ -104,7 +104,6 @@ def load_data():
     cdo_barangays["Geometry"] = cdo_barangays["Geometry"].apply(wkt.loads)
     gdf_barangays = gpd.GeoDataFrame(cdo_barangays, geometry="Geometry", crs="EPSG:4326")
     gdf_barangays = gdf_barangays.to_crs(3857)
-    areas = gdf_barangays.geometry.area
 
     forecasts = pd.read_csv("all_models_forecasts.csv")
     forecasts["Date"] = pd.to_datetime(forecasts["Date"])
@@ -112,7 +111,7 @@ def load_data():
     merged_gdf = gpd.GeoDataFrame(merged, geometry="Geometry", crs="EPSG:4326")
     return merged_gdf, areas
 
-merged_all, areas = load_data()
+gdf_barangays, merged_all = load_data()
 
 # DATA PREPARATION
 merged_all["Year"] = merged_all["Date"].dt.year
@@ -215,10 +214,11 @@ with col1:
 
         # ADD BARANGAY NAME LABELS
         min_font, max_font = 8, 24
+        areas = gdf_barangays.geometry.area
         norm_areas = (areas - areas.min()) / (areas.max() - areas.min())
         font_sizes = min_font + norm_areas * (max_font - min_font)
 
-        for i, row in gdf.iterrows():
+        for i, row in gdf_barangays.iterrows():
             centroid = row.geometry.centroid
             label = row.get("Barangay", str(i))
             font_size = int(font_sizes.iloc[i])
@@ -354,6 +354,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
