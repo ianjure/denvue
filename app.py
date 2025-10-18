@@ -214,21 +214,26 @@ with col1:
         ).add_to(map)
 
         # ADD BARANGAY NAME LABELS
-        min_font, max_font = 8, 24
-
-        # Compute area using projected CRS (meters)
+        # Compute areas using projected CRS (meters)
         gdf_area = gdf_barangays.to_crs(3857)
         areas = gdf_area.geometry.area
         
         # Normalize font sizes based on area
+        min_font, max_font = 8, 24
         norm_areas = (areas - areas.min()) / (areas.max() - areas.min())
         font_sizes = min_font + norm_areas * (max_font - min_font)
         
-        # Compute centroids in lat/lon
-        centroids = gdf_barangays.geometry.centroid  # gdf_barangays should be EPSG:4326
+        # Recompute centroids explicitly in EPSG:4326 (WGS84)
+        gdf_centroids = gdf_barangays.copy()
+        gdf_centroids["centroid"] = gdf_centroids["Geometry"].to_crs(4326).centroid
         
-        for i, row in gdf_barangays.iterrows():
-            centroid = centroids.iloc[i]
+        # Sanity check: drop rows with invalid centroid coordinates
+        gdf_centroids = gdf_centroids[
+            gdf_centroids["centroid"].apply(lambda g: g.is_valid and -90 <= g.y <= 90 and -180 <= g.x <= 180)
+        ]
+        
+        for i, row in gdf_centroids.iterrows():
+            centroid = row["centroid"]
             label = row.get("Barangay", str(i))
             font_size = int(font_sizes.iloc[i])
         
@@ -236,7 +241,7 @@ with col1:
             <div style="
                 font-size:{font_size}px;
                 font-weight:bold;
-                color:red;
+                color:black;
                 background:rgba(255,255,255,0.7);
                 border-radius:4px;
                 padding:2px;
@@ -244,10 +249,11 @@ with col1:
                 {label}
             </div>
             """
+        
             folium.Marker(
                 location=[centroid.y, centroid.x],
-                icon=folium.DivIcon(html=html)
-            ).add_to(map)
+                icon=folium.DivIcon(html=html))
+            .add_to(map)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -363,6 +369,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
