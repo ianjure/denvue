@@ -224,7 +224,7 @@ with col1:
                         text-align: center;
                         color: black;
                         text-shadow: 1px 1px 2px white;
-                        display: none;
+                        display: block;
                     ">
                         {row['Barangay']}
                     </div>
@@ -366,6 +366,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
