@@ -215,7 +215,7 @@ with col1:
         label_markers = []
         for _, row in filtered_data.iterrows():
             # Use representative_point() so it’s guaranteed inside the polygon
-            point = row["geometry"].representative_point()  # note: lowercase 'geometry'
+            point = row["Geometry"].representative_point()  # note: lowercase 'geometry'
             lat, lon = point.y, point.x
             marker = folium.Marker(
                 [lat, lon],
@@ -371,6 +371,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
