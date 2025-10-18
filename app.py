@@ -246,46 +246,60 @@ with col1:
         folium.LayerControl(collapsed=False).add_to(map)
 
         # ADD BARANGAY INFO POPUP PANEL
-        popup_html = f"""
-        {{% macro html(this, kwargs) %}}
-        <div id="barangay-popup" style="
-            display:none;
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            width: 220px;
-            z-index:9999;
-            font-size:14px;
-            background-color:white;
-            border:2px solid #ABABAB;
-            border-radius:8px;
-            padding:10px;
-            box-shadow:0px 2px 8px rgba(0,0,0,0.2);
-        ">
-            <b id="bgy-name">Barangay:</b><br>
-            <span id="bgy-cases"></span><br>
-            <span id="bgy-risk"></span>
+        # Add title placeholder (empty at first)
+        title_html = """
+        <div id="map-title" style="
+             position:absolute;
+             z-index:10000;
+             background-color:white;
+             border-radius:8px;
+             padding:5px 10px;
+             top:10px;
+             left:50%;
+             transform:translateX(-50%);
+             font-size:16px;
+             font-weight:bold;">
+             Click a barangay
         </div>
-        
-        <script>
-        var geojsonLayer = {geojson.get_name()};
-        
-        geojsonLayer.eachLayer(function(layer) {{
-            layer.on('click', function(e) {{
-                var props = e.target.feature.properties;
-                var popup = document.getElementById('barangay-popup');
-                popup.style.display = 'block';
-                document.getElementById('bgy-name').innerHTML = "<b>Barangay:</b> " + props.Barangay;
-                document.getElementById('bgy-cases').innerHTML = "<b>Forecasted Cases:</b> " + props.Forecast_Cases_str;
-                document.getElementById('bgy-risk').innerHTML = "<b>Risk Level:</b> " + props.Risk_Level;
-            }});
-        }});
-        </script>
-        {{% endmacro %}}
         """
-        popup_macro = MacroElement()
-        popup_macro._template = Template(popup_html)
-        map.get_root().add_child(popup_macro)
+        m.get_root().html.add_child(folium.Element(title_html))
+        
+        # Add polygons with event listeners
+        for _, row in filtered_data.iterrows():
+            folium.GeoJson(
+                row["geometry"],
+                name=row["Barangay"],
+                style_function=lambda x: {
+                    "fillColor": "orange",
+                    "color": "black",
+                    "weight": 1,
+                    "fillOpacity": 0.5,
+                },
+                highlight_function=lambda x: {"fillOpacity": 0.8},
+                # Add a custom onClick event to update the title dynamically
+                tooltip=row["Barangay"],
+                popup=row["Barangay"],
+            ).add_to(m)
+        
+        # Add custom JavaScript for dynamic updates
+        update_js = """
+        <script>
+        function attachClickEvents() {
+            var layers = document.querySelectorAll('.leaflet-interactive');
+            layers.forEach(function(layer) {
+                layer.addEventListener('click', function() {
+                    // Try to extract tooltip text (barangay name)
+                    var tooltip = layer.getAttribute('aria-label');
+                    if (tooltip) {
+                        document.getElementById('map-title').innerHTML = tooltip;
+                    }
+                });
+            });
+        }
+        document.addEventListener("DOMContentLoaded", attachClickEvents);
+        </script>
+        """
+        m.get_root().html.add_child(folium.Element(update_js))
         
         # CUSTOM LEGEND
         legend_html = """
@@ -402,6 +416,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
