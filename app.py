@@ -215,12 +215,20 @@ with col1:
 
         # ADD BARANGAY NAME LABELS
         min_font, max_font = 8, 24
-        areas = gdf_barangays.geometry.area
+
+        # Compute area using projected CRS (meters)
+        gdf_area = gdf_barangays.to_crs(3857)
+        areas = gdf_area.geometry.area
+        
+        # Normalize font sizes based on area
         norm_areas = (areas - areas.min()) / (areas.max() - areas.min())
         font_sizes = min_font + norm_areas * (max_font - min_font)
-
+        
+        # Compute centroids in lat/lon
+        centroids = gdf_barangays.geometry.centroid  # gdf_barangays should be EPSG:4326
+        
         for i, row in gdf_barangays.iterrows():
-            centroid = row.Geometry.centroid
+            centroid = centroids.iloc[i]
             label = row.get("Barangay", str(i))
             font_size = int(font_sizes.iloc[i])
         
@@ -355,6 +363,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
