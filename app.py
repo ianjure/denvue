@@ -183,8 +183,8 @@ with col1:
         
         def get_color(risk_level):
             if pd.isna(risk_level):
-                return "#d9d9d9"
-            return risk_colors.get(risk_level, "#d9d9d9")
+                return "#ffffcc"
+            return risk_colors.get(risk_level, "#ffffcc")
         
         def style_function(feature):
             risk_level = feature["properties"].get("Risk_Level", None)
@@ -359,6 +359,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
