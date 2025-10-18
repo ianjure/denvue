@@ -226,12 +226,10 @@ with col1:
             
             html = f"""
             <div style="
-                font-size:12px;
+                font-size:6px;
                 font-weight:bold;
                 color:{text_color};
-                background:{bg_color};
                 border-radius:4px;
-                padding:2px 4px;
                 text-align:center;
                 opacity:0.85;">
                 {label}
@@ -360,6 +358,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
