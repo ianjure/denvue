@@ -218,7 +218,7 @@ with col1:
         areas = gdf_area.geometry.area
         
         # Normalize font sizes based on area
-        min_font, max_font = 10, 10
+        min_font, max_font = 10, 5
         norm_areas = (areas - areas.min()) / (areas.max() - areas.min())
         font_sizes = min_font + norm_areas * (max_font - min_font)
         
@@ -368,6 +368,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
