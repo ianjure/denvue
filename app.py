@@ -224,7 +224,7 @@ with col1:
                         text-align: center;
                         color: black;
                         text-shadow: 1px 1px 2px white;
-                        display: block;
+                        display: none; /* hidden until zoom >= 12 */
                     ">
                         {row['Barangay']}
                     </div>
@@ -232,8 +232,9 @@ with col1:
                 ),
             ).add_to(map)
         
-        # --- ZOOM SCRIPT (directly injected inside map's iframe) ---
+        # --- ZOOM SCRIPT (correctly referencing map object name) ---
         zoom_script = """
+        {% macro html(this, kwargs) %}
         <script>
         function toggleBarangayLabels(e) {
             var zoom = e.target.getZoom();
@@ -242,15 +243,19 @@ with col1:
                 labels[i].style.display = (zoom >= 12) ? 'block' : 'none';
             }
         }
-        map.on('zoomend', toggleBarangayLabels);
-        map.whenReady(function() {
-            toggleBarangayLabels({target: map});
+        
+        var mapObj = {{ this._parent.get_name() }};
+        mapObj.on('zoomend', toggleBarangayLabels);
+        mapObj.whenReady(function() {
+            toggleBarangayLabels({target: mapObj});
         });
         </script>
+        {% endmacro %}
         """
         
-        # Add the script directly into the Folium map's HTML (inside the iframe)
-        map.get_root().html.add_child(folium.Element(zoom_script))
+        zoom_macro = MacroElement()
+        zoom_macro._template = Template(zoom_script)
+        map.get_root().add_child(zoom_macro)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -366,6 +371,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
