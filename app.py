@@ -210,24 +210,41 @@ with col1:
                 sticky=True,
             ),
             name="Forecasted Cases",
-            highlight_function=lambda x: {'weight': 3, 'color': 'orange'},
+            highlight_function=lambda x: {'weight': 3, 'color': 'green'},
         ).add_to(map)
         
-        # Safely inject JavaScript (NO indentation or f-string mismatches)
-        js = f"""
-        <script>
-            var layer = {geojson.get_name()};
-            layer.eachLayer(function(polygon) {{
-                polygon.on('dblclick', function(e) {{
-                    var bounds = polygon.getBounds();
-                    polygon._map.fitBounds(bounds, {{maxZoom: 15}});
-                }});
-            }});
-        </script>
-        """
+        # ADD BARANGAY NAME LAYER
+        labels_layer = folium.FeatureGroup(name="Barangay Labels")
         
-        # Use Element() safely — do not indent or wrap in `script` container twice
-        map.get_root().html.add_child(Element(js))
+        for _, row in filtered_data.iterrows():
+            centroid = row["Geometry"].centroid
+            label = row["Barangay"]
+            risk_level = row.get("Risk_Level", "Low Risk")
+            bg_color = risk_colors.get(risk_level, "#ffffcc")
+        
+            text_color = "black" if bg_color.lower() == "#ffffcc" else "white"
+            
+            html = f"""
+            <div style="
+                font-size:12px;
+                font-weight:bold;
+                color:{text_color};
+                background:{bg_color};
+                border-radius:4px;
+                padding:2px 4px;
+                text-align:center;
+                opacity:0.85;">
+                {label}
+            </div>
+            """
+        
+            folium.Marker(
+                location=[centroid.y, centroid.x],
+                icon=folium.DivIcon(html=html)
+            ).add_to(labels_layer)
+        
+        labels_layer.add_to(map)
+        folium.LayerControl(collapsed=False).add_to(map)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -343,6 +360,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
