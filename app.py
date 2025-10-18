@@ -222,7 +222,7 @@ with col1:
         font_sizes = np.interp(log_areas, (log_areas.min(), log_areas.max()), (min_font, max_font))
         
         # Add barangay name labels with dynamic font size
-        for i, row in filtered_data.iterrows():
+        for i, (_, row) in enumerate(filtered_data.iterrows()):
             point = row["Geometry"].representative_point()
             lat, lon = point.y, point.x
             font_size = int(font_sizes[i])
@@ -358,6 +358,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
