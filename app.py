@@ -200,7 +200,7 @@ with col1:
         geojson_data = json.loads(filtered_data.to_json())
         
         # ADD GEOJSON LAYER
-        folium.GeoJson(
+        geojson = folium.GeoJson(
             data=geojson_data,
             style_function=style_function,
             tooltip=folium.GeoJsonTooltip(
@@ -211,20 +211,20 @@ with col1:
             ),
             name="Forecasted Cases",
             highlight_function=lambda x: {'weight': 3, 'color': 'blue'},
-            zoom_on_click=False  # disable default zoom (we’ll override)
         ).add_to(map)
         
-        map.get_root().html.add_child(folium.Element("""
+        # Inject JS event listener for double-click
+        map.get_root().html.add_child(folium.Element(f"""
         <script>
-        function onEachFeature(feature, layer) {
-            layer.on({
-                dblclick: function(e) {
+            // Wait for the map to load
+            var layer = {geojson.get_name()};
+            layer.eachLayer(function(l) {{
+                l.on('dblclick', function(e) {{
                     var map = e.target._map;
-                    var bounds = layer.getBounds();
-                    map.fitBounds(bounds, {maxZoom: 15});
-                }
-            });
-        }
+                    var bounds = l.getBounds();
+                    map.fitBounds(bounds, {{maxZoom: 15}});
+                }});
+            }});
         </script>
         """))
         
@@ -342,6 +342,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
