@@ -211,11 +211,13 @@ with col1:
         ).add_to(map)
 
         # ADD BARANGAY NAME LABELS
+        # ADD BARANGAY NAME LABELS (always inside polygon)
         label_markers = []
         for _, row in filtered_data.iterrows():
-            point = row["Geometry"].representative_point()
+            # Use representative_point() so it’s guaranteed inside the polygon
+            point = row["geometry"].representative_point()  # note: lowercase 'geometry'
             lat, lon = point.y, point.x
-            marker = folium.map.Marker(
+            marker = folium.Marker(
                 [lat, lon],
                 icon=folium.DivIcon(
                     html=f"""
@@ -230,28 +232,30 @@ with col1:
                         {row['Barangay']}
                     </div>
                     """
-                )
+                ),
             )
             marker.add_to(map)
             label_markers.append(marker)
         
-        # --- JavaScript to toggle visibility based on zoom ---
-        # Show labels only when zoom >= 13 (adjust threshold as needed)
+        # --- JavaScript to toggle label visibility on zoom ---
+        # IMPORTANT: Must target the actual Leaflet map instance name inside Folium.
         zoom_js = """
-        <script>
+        {% macro script(this, kwargs) %}
         function toggleLabels(e) {
             const zoom = e.target.getZoom();
             const labels = document.getElementsByClassName('bgy-label');
             for (let i = 0; i < labels.length; i++) {
-                labels[i].style.display = zoom >= 5 ? 'block' : 'none';
+                labels[i].style.display = zoom >= 13 ? 'block' : 'none';
             }
         }
-        map.on('zoomend', toggleLabels);
-        map.on('load', toggleLabels);
-        </script>
+        {{this._parent.get_name()}}.on('zoomend', toggleLabels);
+        {{this._parent.get_name()}}.whenReady(toggleLabels);
+        {% endmacro %}
         """
-        
-        map.get_root().html.add_child(folium.Element(zoom_js))
+
+        zoom_control = MacroElement()
+        zoom_control._template = Template(zoom_js)
+        map.get_root().add_child(zoom_control)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -367,6 +371,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
