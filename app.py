@@ -210,7 +210,7 @@ with col1:
                 sticky=True,
             ),
             name="Forecasted Cases",
-            highlight_function=lambda x: {'weight': 3, 'color': 'blue'},
+            highlight_function=lambda x: {'weight': 3, 'color': 'orange'},
         ).add_to(map)
         
         # Safely inject JavaScript (NO indentation or f-string mismatches)
@@ -343,6 +343,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
