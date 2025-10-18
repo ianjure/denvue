@@ -240,7 +240,7 @@ with col1:
                 var zoom = e.target.getZoom();
                 var labels = document.getElementsByClassName('bgy-label');
                 for (var i = 0; i < labels.length; i++) {
-                    labels[i].style.display = (zoom >= 12) ? 'block' : 'none';
+                    labels[i].style.display = (zoom >= 12) ? 'block' : block';
                 }
             }
             var mapObj = {{ this._parent.get_name() }};
@@ -369,6 +369,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
