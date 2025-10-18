@@ -236,7 +236,7 @@ with col1:
             <div style="
                 font-size:{font_size}px;
                 font-weight:bold;
-                color:black;
+                color:red;
                 background:rgba(255,255,255,0.7);
                 border-radius:4px;
                 padding:2px;
@@ -363,6 +363,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
