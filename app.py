@@ -213,19 +213,21 @@ with col1:
             highlight_function=lambda x: {'weight': 3, 'color': 'blue'},
         ).add_to(map)
         
-        # Inject JS event listener for double-click
-        # Inject double-click JavaScript
-        map.get_root().script.add_child(folium.Element(f"""
+        # Safely inject JavaScript (NO indentation or f-string mismatches)
+        js = f"""
         <script>
-        var layer = {geojson.get_name()};
-        layer.eachLayer(function(polygon) {{
-            polygon.on('dblclick', function(e) {{
-                var bounds = polygon.getBounds();
-                polygon._map.fitBounds(bounds, {{maxZoom: 15}});
+            var layer = {geojson.get_name()};
+            layer.eachLayer(function(polygon) {{
+                polygon.on('dblclick', function(e) {{
+                    var bounds = polygon.getBounds();
+                    polygon._map.fitBounds(bounds, {{maxZoom: 15}});
+                }});
             }});
-        }});
         </script>
-        """))
+        """
+        
+        # Use Element() safely — do not indent or wrap in `script` container twice
+        map.get_root().html.add_child(Element(js))
         
         # CUSTOM LEGEND
         legend_html = """
@@ -341,6 +343,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
