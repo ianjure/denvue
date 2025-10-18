@@ -103,14 +103,16 @@ def load_data():
     cdo_barangays = pd.read_csv("cdo_barangays.csv")
     cdo_barangays["Geometry"] = cdo_barangays["Geometry"].apply(wkt.loads)
     gdf_barangays = gpd.GeoDataFrame(cdo_barangays, geometry="Geometry", crs="EPSG:4326")
+    gdf_barangays = gdf_barangays.to_crs(3857)
+    areas = gdf_barangays.geometry.area
 
     forecasts = pd.read_csv("all_models_forecasts.csv")
     forecasts["Date"] = pd.to_datetime(forecasts["Date"])
     merged = forecasts.merge(gdf_barangays, on="Barangay", how="left")
     merged_gdf = gpd.GeoDataFrame(merged, geometry="Geometry", crs="EPSG:4326")
-    return merged_gdf
+    return merged_gdf, areas
 
-merged_all = load_data()
+merged_all, areas = load_data()
 
 # DATA PREPARATION
 merged_all["Year"] = merged_all["Date"].dt.year
@@ -212,37 +214,31 @@ with col1:
         ).add_to(map)
 
         # ADD BARANGAY NAME LABELS
-        # Compute polygon areas (in degrees²) — just for relative scaling
-        areas_deg = filtered_data["Geometry"].area.values
-        areas_safe = np.where(areas_deg > 0, areas_deg, np.nanmin(areas_deg[areas_deg > 0]))
+        min_font, max_font = 8, 24
+        norm_areas = (areas - areas.min()) / (areas.max() - areas.min())
+        font_sizes = min_font + norm_areas * (max_font - min_font)
+
+        for i, row in gdf.iterrows():
+            centroid = row.geometry.centroid
+            label = row.get("Barangay", str(i))
+            font_size = int(font_sizes.iloc[i])
         
-        # Normalize areas to a font size range
-        min_font, max_font = 8, 18
-        log_areas = np.log10(areas_safe + 1e-12)
-        font_sizes = np.interp(log_areas, (log_areas.min(), log_areas.max()), (min_font, max_font))
-        
-        # Add barangay name labels with dynamic font size
-        for i, (_, row) in enumerate(filtered_data.iterrows()):
-            point = row["Geometry"].representative_point()
-            lat, lon = point.y, point.x
-            font_size = int(font_sizes[i])
+            html = f"""
+            <div style="
+                font-size:{font_size}px;
+                font-weight:bold;
+                color:black;
+                background:rgba(255,255,255,0.7);
+                border-radius:4px;
+                padding:2px;
+                text-align:center;">
+                {label}
+            </div>
+            """
             folium.Marker(
-                [lat, lon],
-                icon=folium.DivIcon(
-                    html=f"""
-                    <div class="bgy-label" style="
-                        font-size: {font_size}px;
-                        font-weight: bold;
-                        text-align: center;
-                        color: black;
-                        text-shadow: 1px 1px 2px white;
-                        line-height: 1;
-                    ">
-                        {row['Barangay']}
-                    </div>
-                    """
-                ),
-            ).add_to(map)
+                location=[centroid.y, centroid.x],
+                icon=folium.DivIcon(html=html))
+            .add_to(m)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -358,6 +354,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
