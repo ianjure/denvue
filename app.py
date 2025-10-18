@@ -220,7 +220,7 @@ with col1:
         font_sizes = min_font + norm_areas * (max_font - min_font)
 
         for i, row in gdf_barangays.iterrows():
-            centroid = row.geometry.centroid
+            centroid = row.Geometry.centroid
             label = row.get("Barangay", str(i))
             font_size = int(font_sizes.iloc[i])
         
@@ -355,6 +355,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
