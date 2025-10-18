@@ -103,7 +103,6 @@ def load_data():
     cdo_barangays = pd.read_csv("cdo_barangays.csv")
     cdo_barangays["Geometry"] = cdo_barangays["Geometry"].apply(wkt.loads)
     gdf_barangays = gpd.GeoDataFrame(cdo_barangays, geometry="Geometry", crs="EPSG:4326")
-    print(gdf_barangays.total_bounds)
 
     forecasts = pd.read_csv("all_models_forecasts.csv")
     forecasts["Date"] = pd.to_datetime(forecasts["Date"])
@@ -113,6 +112,7 @@ def load_data():
     return gdf_barangays, merged_gdf
 
 gdf_barangays, merged_all = load_data()
+print(gdf_barangays.geometry.head())
 
 # DATA PREPARATION
 merged_all["Year"] = merged_all["Date"].dt.year
@@ -369,6 +369,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
