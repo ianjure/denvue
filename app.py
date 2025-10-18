@@ -210,49 +210,23 @@ with col1:
                 sticky=True,
             ),
             name="Forecasted Cases",
+            highlight_function=lambda x: {'weight': 3, 'color': 'blue'},
+            zoom_on_click=False  # disable default zoom (we’ll override)
         ).add_to(map)
-
-        # ADD BARANGAY NAME LABELS
-        # Compute areas using projected CRS (meters)
-        gdf_area = gdf_barangays.to_crs(3857)
-        areas = gdf_area.geometry.area
         
-        # Normalize font sizes based on area
-        min_font, max_font = 10, 5
-        norm_areas = (areas - areas.min()) / (areas.max() - areas.min())
-        font_sizes = min_font + norm_areas * (max_font - min_font)
-        
-        # Recompute centroids explicitly in EPSG:4326 (WGS84)
-        gdf_centroids = gdf_barangays.copy()
-        gdf_centroids["centroid"] = gdf_centroids["Geometry"].to_crs(4326).centroid
-        
-        # Sanity check: drop rows with invalid centroid coordinates
-        gdf_centroids = gdf_centroids[
-            gdf_centroids["centroid"].apply(lambda g: g.is_valid and -90 <= g.y <= 90 and -180 <= g.x <= 180)
-        ]
-        
-        for i, row in gdf_centroids.iterrows():
-            centroid = row["centroid"]
-            label = row.get("Barangay", str(i))
-            font_size = int(font_sizes.iloc[i])
-        
-            html = f"""
-            <div style="
-                font-size:{font_size}px;
-                font-weight:bold;
-                color:black;
-                background:rgba(255,255,255,0.7);
-                border-radius:4px;
-                padding:2px;
-                text-align:center;">
-                {label}
-            </div>
-            """
-        
-            folium.Marker(
-                location=[centroid.y, centroid.x],
-                icon=folium.DivIcon(html=html)
-            ).add_to(map)
+        map.get_root().html.add_child(folium.Element("""
+        <script>
+        function onEachFeature(feature, layer) {
+            layer.on({
+                dblclick: function(e) {
+                    var map = e.target._map;
+                    var bounds = layer.getBounds();
+                    map.fitBounds(bounds, {maxZoom: 15});
+                }
+            });
+        }
+        </script>
+        """))
         
         # CUSTOM LEGEND
         legend_html = """
@@ -368,6 +342,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
