@@ -224,7 +224,7 @@ with col1:
                         text-align: center;
                         color: black;
                         text-shadow: 1px 1px 2px white;
-                        display: block;
+                        display: none;  /* hidden until zoom threshold */
                     ">
                         {row['Barangay']}
                     </div>
@@ -232,25 +232,28 @@ with col1:
                 ),
             ).add_to(map)
         
-        # ADD ZOOM-AWARE LABEL CONTROL USING MACROELEMENT
-        labels_html = """
+        # --- ZOOM-AWARE LABEL CONTROL ---
+        zoom_script = """
         {% macro html(this, kwargs) %}
         <script>
-        function toggleBarangayLabels(e) {
-            const zoom = e.target.getZoom();
-            const labels = document.getElementsByClassName('bgy-label');
-            for (let i = 0; i < labels.length; i++) {
-                labels[i].style.display = zoom >= 12 ? 'block' : 'none';
+            function toggleBarangayLabels(e) {
+                var zoom = e.target.getZoom();
+                var labels = document.getElementsByClassName('bgy-label');
+                for (var i = 0; i < labels.length; i++) {
+                    labels[i].style.display = (zoom >= 12) ? 'block' : 'none';
+                }
             }
-        }
-        {{this._parent.get_name()}}.on('zoomend', toggleBarangayLabels);
-        {{this._parent.get_name()}}.whenReady(toggleBarangayLabels);
+            var mapObj = {{ this._parent.get_name() }};
+            mapObj.on('zoomend', toggleBarangayLabels);
+            mapObj.whenReady(function() {
+                toggleBarangayLabels({target: mapObj});
+            });
         </script>
         {% endmacro %}
         """
-        label_macro = MacroElement()
-        label_macro._template = Template(labels_html)
-        map.get_root().add_child(label_macro)
+        zoom_macro = MacroElement()
+        zoom_macro._template = Template(zoom_script)
+        map.get_root().add_child(zoom_macro)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -366,6 +369,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
