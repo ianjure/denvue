@@ -6,6 +6,7 @@ from shapely import wkt
 import folium
 import leafmap.foliumap as leafmap
 from branca.element import Template, MacroElement
+import numpy as np
 import json
 
 # PAGE CONFIG
@@ -357,6 +358,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
