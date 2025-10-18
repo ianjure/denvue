@@ -200,7 +200,7 @@ with col1:
         geojson_data = json.loads(filtered_data.to_json())
         
         # ADD GEOJSON LAYER
-        folium.GeoJson(
+        geojson = folium.GeoJson(
             data=geojson_data,
             style_function=style_function,
             tooltip=folium.GeoJsonTooltip(
@@ -246,8 +246,8 @@ with col1:
         folium.LayerControl(collapsed=False).add_to(map)
 
         # ADD BARANGAY INFO POPUP PANEL
-        popup_html = """
-        {% macro html(this, kwargs) %}
+        popup_html = f"""
+        {{% macro html(this, kwargs) %}}
         <div id="barangay-popup" style="
             display:none;
             position: fixed;
@@ -268,19 +268,20 @@ with col1:
         </div>
         
         <script>
-        var geojsonLayer = {{ geojson.get_name() }};
+        var geojsonLayer = {geojson.get_name()};
         
-        geojsonLayer.eachLayer(function(layer) {
-            layer.on('click', function(e) {
+        geojsonLayer.eachLayer(function(layer) {{
+            layer.on('click', function(e) {{
                 var props = e.target.feature.properties;
-                document.getElementById('barangay-popup').style.display = 'block';
+                var popup = document.getElementById('barangay-popup');
+                popup.style.display = 'block';
                 document.getElementById('bgy-name').innerHTML = "<b>Barangay:</b> " + props.Barangay;
                 document.getElementById('bgy-cases').innerHTML = "<b>Forecasted Cases:</b> " + props.Forecast_Cases_str;
                 document.getElementById('bgy-risk').innerHTML = "<b>Risk Level:</b> " + props.Risk_Level;
-            });
-        });
+            }});
+        }});
         </script>
-        {% endmacro %}
+        {{% endmacro %}}
         """
         popup_macro = MacroElement()
         popup_macro._template = Template(popup_html)
@@ -401,6 +402,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
