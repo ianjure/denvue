@@ -211,53 +211,46 @@ with col1:
         ).add_to(map)
 
         # ADD BARANGAY NAME LABELS
-        from folium import FeatureGroup, Map, Marker, DivIcon
-        from folium.plugins import BeautifyIcon
-        
-        # --- ADD BARANGAY LABELS GROUP ---
-        label_group = FeatureGroup(name="Barangay Labels", show=False)
-        
         for _, row in filtered_data.iterrows():
-            point = row["Geometry"].representative_point()  # keep your uppercase 'Geometry'
+            point = row["Geometry"].representative_point()
             lat, lon = point.y, point.x
+            folium.Marker(
+                [lat, lon],
+                icon=folium.DivIcon(
+                    html=f"""
+                    <div class="bgy-label" style="
+                        font-size: 10px;
+                        font-weight: bold;
+                        text-align: center;
+                        color: black;
+                        text-shadow: 1px 1px 2px white;
+                        display: none;
+                    ">
+                        {row['Barangay']}
+                    </div>
+                    """
+                ),
+            ).add_to(map)
         
-            label_html = f"""
-            <div style="
-                font-size: 10px;
-                font-weight: bold;
-                text-align: center;
-                color: black;
-                text-shadow: 1px 1px 2px white;
-            ">
-                {row['Barangay']}
-            </div>
-            """
-        
-            label_marker = Marker(
-                location=[lat, lon],
-                icon=DivIcon(html=label_html),
-            )
-            label_marker.add_to(label_group)
-        
-        label_group.add_to(map)
-        
-        # --- Add a Leaflet script to show labels only when zoomed in ---
-        # This executes properly in Leafmap Streamlit
-        zoom_js = """
+        # ADD ZOOM-AWARE LABEL CONTROL USING MACROELEMENT
+        labels_html = """
+        {% macro html(this, kwargs) %}
+        <script>
         function toggleBarangayLabels(e) {
             const zoom = e.target.getZoom();
-            const labelLayer = e.target._layers;
-            for (const layerId in labelLayer) {
-                const layer = labelLayer[layerId];
-                if (layer instanceof L.Marker && layer._icon && layer._icon.innerHTML.includes('font-size')) {
-                    layer._icon.style.display = (zoom >= 12) ? 'block' : 'none';
-                }
+            const labels = document.getElementsByClassName('bgy-label');
+            for (let i = 0; i < labels.length; i++) {
+                labels[i].style.display = zoom >= 12 ? 'block' : 'none';
             }
         }
-        map.on('zoomend', toggleBarangayLabels);
-        map.whenReady(() => toggleBarangayLabels({target: map}));
+        {{this._parent.get_name()}}.on('zoomend', toggleBarangayLabels);
+        {{this._parent.get_name()}}.whenReady(toggleBarangayLabels);
+        </script>
+        {% endmacro %}
         """
-        map.get_root().html.add_child(folium.Element(f"<script>{zoom_js}</script>"))
+        label_macro = MacroElement()
+        label_macro._template = Template(labels_html)
+        map.get_root().add_child(label_macro)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -373,6 +366,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
