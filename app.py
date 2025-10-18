@@ -191,7 +191,7 @@ with col1:
             return {
                 "fillColor": get_color(risk_level),
                 "fillOpacity": 1.0,
-                "color": "#d3d9db",
+                "color": "#686A6AFF",
                 "weight": 1.0,
                 "opacity": 1.0,
             }
@@ -359,6 +359,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
