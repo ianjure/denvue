@@ -245,7 +245,7 @@ with col1:
             const zoom = e.target.getZoom();
             const labels = document.getElementsByClassName('bgy-label');
             for (let i = 0; i < labels.length; i++) {
-                labels[i].style.display = zoom <= 15 ? 'block' : 'none';
+                labels[i].style.display = zoom >= 11 ? 'block' : 'none';
             }
         }
         {{this._parent.get_name()}}.on('zoomend', toggleLabels);
@@ -371,6 +371,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
