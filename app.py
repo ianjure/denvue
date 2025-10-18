@@ -239,7 +239,7 @@ with col1:
             folium.Marker(
                 location=[centroid.y, centroid.x],
                 icon=folium.DivIcon(html=html)
-            ).add_to(m)
+            ).add_to(map)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -355,6 +355,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
