@@ -262,7 +262,7 @@ with col1:
              Click a barangay
         </div>
         """
-        m.get_root().html.add_child(folium.Element(title_html))
+        map.get_root().html.add_child(folium.Element(title_html))
         
         # Add polygons with event listeners
         for _, row in filtered_data.iterrows():
@@ -416,6 +416,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
