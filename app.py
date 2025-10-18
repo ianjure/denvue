@@ -211,51 +211,53 @@ with col1:
         ).add_to(map)
 
         # ADD BARANGAY NAME LABELS
-        # ADD BARANGAY NAME LABELS (always inside polygon)
-        label_markers = []
-        for _, row in filtered_data.iterrows():
-            # Use representative_point() so it’s guaranteed inside the polygon
-            point = row["Geometry"].representative_point()  # note: lowercase 'geometry'
-            lat, lon = point.y, point.x
-            marker = folium.Marker(
-                [lat, lon],
-                icon=folium.DivIcon(
-                    html=f"""
-                    <div class="bgy-label" style="
-                        font-size: 10px;
-                        font-weight: bold;
-                        text-align: center;
-                        color: black;
-                        text-shadow: 1px 1px 2px white;
-                        display: none;
-                    ">
-                        {row['Barangay']}
-                    </div>
-                    """
-                ),
-            )
-            marker.add_to(map)
-            label_markers.append(marker)
+        from folium import FeatureGroup, Map, Marker, DivIcon
+        from folium.plugins import BeautifyIcon
         
-        # --- JavaScript to toggle label visibility on zoom ---
-        # IMPORTANT: Must target the actual Leaflet map instance name inside Folium.
+        # --- ADD BARANGAY LABELS GROUP ---
+        label_group = FeatureGroup(name="Barangay Labels", show=False)
+        
+        for _, row in filtered_data.iterrows():
+            point = row["Geometry"].representative_point()  # keep your uppercase 'Geometry'
+            lat, lon = point.y, point.x
+        
+            label_html = f"""
+            <div style="
+                font-size: 10px;
+                font-weight: bold;
+                text-align: center;
+                color: black;
+                text-shadow: 1px 1px 2px white;
+            ">
+                {row['Barangay']}
+            </div>
+            """
+        
+            label_marker = Marker(
+                location=[lat, lon],
+                icon=DivIcon(html=label_html),
+            )
+            label_marker.add_to(label_group)
+        
+        label_group.add_to(map)
+        
+        # --- Add a Leaflet script to show labels only when zoomed in ---
+        # This executes properly in Leafmap Streamlit
         zoom_js = """
-        {% macro script(this, kwargs) %}
-        function toggleLabels(e) {
+        function toggleBarangayLabels(e) {
             const zoom = e.target.getZoom();
-            const labels = document.getElementsByClassName('bgy-label');
-            for (let i = 0; i < labels.length; i++) {
-                labels[i].style.display = zoom >= 11 ? 'block' : 'none';
+            const labelLayer = e.target._layers;
+            for (const layerId in labelLayer) {
+                const layer = labelLayer[layerId];
+                if (layer instanceof L.Marker && layer._icon && layer._icon.innerHTML.includes('font-size')) {
+                    layer._icon.style.display = (zoom >= 12) ? 'block' : 'none';
+                }
             }
         }
-        {{this._parent.get_name()}}.on('zoomend', toggleLabels);
-        {{this._parent.get_name()}}.whenReady(toggleLabels);
-        {% endmacro %}
+        map.on('zoomend', toggleBarangayLabels);
+        map.whenReady(() => toggleBarangayLabels({target: map}));
         """
-
-        zoom_control = MacroElement()
-        zoom_control._template = Template(zoom_js)
-        map.get_root().add_child(zoom_control)
+        map.get_root().html.add_child(folium.Element(f"<script>{zoom_js}</script>"))
         
         # CUSTOM LEGEND
         legend_html = """
@@ -371,6 +373,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
