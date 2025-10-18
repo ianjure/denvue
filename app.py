@@ -212,7 +212,7 @@ with col1:
 
         # ADD BARANGAY NAME LABELS
         for _, row in filtered_data.iterrows():
-            centroid = row["geometry"].centroid
+            centroid = row["Geometry"].centroid
             lat, lon = centroid.y, centroid.x
             
             folium.map.Marker(
@@ -346,6 +346,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
