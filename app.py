@@ -211,51 +211,37 @@ with col1:
         ).add_to(map)
 
         # ADD BARANGAY NAME LABELS
-        for _, row in filtered_data.iterrows():
+        # Compute polygon areas (in degrees²) — just for relative scaling
+        areas_deg = filtered_data["Geometry"].area.values
+        areas_safe = np.where(areas_deg > 0, areas_deg, np.nanmin(areas_deg[areas_deg > 0]))
+        
+        # Normalize areas to a font size range
+        min_font, max_font = 8, 18
+        log_areas = np.log10(areas_safe + 1e-12)
+        font_sizes = np.interp(log_areas, (log_areas.min(), log_areas.max()), (min_font, max_font))
+        
+        # Add barangay name labels with dynamic font size
+        for i, row in filtered_data.iterrows():
             point = row["Geometry"].representative_point()
             lat, lon = point.y, point.x
+            font_size = int(font_sizes[i])
             folium.Marker(
                 [lat, lon],
                 icon=folium.DivIcon(
                     html=f"""
                     <div class="bgy-label" style="
-                        font-size: 10px;
+                        font-size: {font_size}px;
                         font-weight: bold;
                         text-align: center;
                         color: black;
                         text-shadow: 1px 1px 2px white;
-                        display: none; /* hidden until zoom >= 12 */
+                        line-height: 1;
                     ">
                         {row['Barangay']}
                     </div>
                     """
                 ),
             ).add_to(map)
-        
-        # --- ZOOM SCRIPT (correctly referencing map object name) ---
-        zoom_script = """
-        {% macro html(this, kwargs) %}
-        <script>
-        function toggleBarangayLabels(e) {
-            var zoom = e.target.getZoom();
-            var labels = document.getElementsByClassName('bgy-label');
-            for (var i = 0; i < labels.length; i++) {
-                labels[i].style.display = (zoom >= 12) ? 'block' : 'none';
-            }
-        }
-        
-        var mapObj = {{ this._parent.get_name() }};
-        mapObj.on('zoomend', toggleBarangayLabels);
-        mapObj.whenReady(function() {
-            toggleBarangayLabels({target: mapObj});
-        });
-        </script>
-        {% endmacro %}
-        """
-        
-        zoom_macro = MacroElement()
-        zoom_macro._template = Template(zoom_script)
-        map.get_root().add_child(zoom_macro)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -371,6 +357,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
