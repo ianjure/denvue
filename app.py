@@ -214,17 +214,16 @@ with col1:
         ).add_to(map)
         
         # Inject JS event listener for double-click
-        map.get_root().html.add_child(folium.Element(f"""
+        # Inject double-click JavaScript
+        map.get_root().script.add_child(folium.Element(f"""
         <script>
-            // Wait for the map to load
-            var layer = {geojson.get_name()};
-            layer.eachLayer(function(l) {{
-                l.on('dblclick', function(e) {{
-                    var map = e.target._map;
-                    var bounds = l.getBounds();
-                    map.fitBounds(bounds, {{maxZoom: 15}});
-                }});
+        var layer = {geojson.get_name()};
+        layer.eachLayer(function(polygon) {{
+            polygon.on('dblclick', function(e) {{
+                var bounds = polygon.getBounds();
+                polygon._map.fitBounds(bounds, {{maxZoom: 15}});
             }});
+        }});
         </script>
         """))
         
@@ -342,6 +341,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
