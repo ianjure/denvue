@@ -103,7 +103,7 @@ def load_data():
     cdo_barangays = pd.read_csv("cdo_barangays.csv")
     cdo_barangays["Geometry"] = cdo_barangays["Geometry"].apply(wkt.loads)
     gdf_barangays = gpd.GeoDataFrame(cdo_barangays, geometry="Geometry", crs="EPSG:4326")
-    gdf_barangays = gdf_barangays.to_crs(3857)
+    print(gdf_barangays.total_bounds)
 
     forecasts = pd.read_csv("all_models_forecasts.csv")
     forecasts["Date"] = pd.to_datetime(forecasts["Date"])
@@ -369,6 +369,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
