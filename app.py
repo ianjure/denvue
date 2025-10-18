@@ -267,7 +267,7 @@ with col1:
         # Add polygons with event listeners
         for _, row in filtered_data.iterrows():
             folium.GeoJson(
-                row["geometry"],
+                row["Geometry"],
                 name=row["Barangay"],
                 style_function=lambda x: {
                     "fillColor": "orange",
@@ -416,6 +416,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
