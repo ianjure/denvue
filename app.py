@@ -244,6 +244,47 @@ with col1:
         
         labels_layer.add_to(map)
         folium.LayerControl(collapsed=False).add_to(map)
+
+        # ADD BARANGAY INFO POPUP PANEL
+        popup_html = """
+        {% macro html(this, kwargs) %}
+        <div id="barangay-popup" style="
+            display:none;
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 220px;
+            z-index:9999;
+            font-size:14px;
+            background-color:white;
+            border:2px solid #ABABAB;
+            border-radius:8px;
+            padding:10px;
+            box-shadow:0px 2px 8px rgba(0,0,0,0.2);
+        ">
+            <b id="bgy-name">Barangay:</b><br>
+            <span id="bgy-cases"></span><br>
+            <span id="bgy-risk"></span>
+        </div>
+        
+        <script>
+        var geojsonLayer = {{ geojson.get_name() }};
+        
+        geojsonLayer.eachLayer(function(layer) {
+            layer.on('click', function(e) {
+                var props = e.target.feature.properties;
+                document.getElementById('barangay-popup').style.display = 'block';
+                document.getElementById('bgy-name').innerHTML = "<b>Barangay:</b> " + props.Barangay;
+                document.getElementById('bgy-cases').innerHTML = "<b>Forecasted Cases:</b> " + props.Forecast_Cases_str;
+                document.getElementById('bgy-risk').innerHTML = "<b>Risk Level:</b> " + props.Risk_Level;
+            });
+        });
+        </script>
+        {% endmacro %}
+        """
+        popup_macro = MacroElement()
+        popup_macro._template = Template(popup_html)
+        map.get_root().add_child(popup_macro)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -359,6 +400,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
