@@ -209,6 +209,28 @@ with col1:
             ),
             name="Forecasted Cases",
         ).add_to(map)
+
+        # ADD BARANGAY NAME LABELS
+        for _, row in filtered_data.iterrows():
+            centroid = row["geometry"].centroid
+            lat, lon = centroid.y, centroid.x
+            
+            folium.map.Marker(
+                [lat, lon],
+                icon=folium.DivIcon(
+                    html=f"""
+                    <div style="
+                        font-size: 10px;
+                        font-weight: bold;
+                        text-align: center;
+                        color: black;
+                        text-shadow: 1px 1px 2px white;
+                    ">
+                        {row['Barangay']}
+                    </div>
+                    """
+                )
+            ).add_to(map)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -324,6 +346,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
