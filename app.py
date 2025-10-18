@@ -246,7 +246,6 @@ with col1:
         folium.LayerControl(collapsed=False).add_to(map)
 
         # ADD BARANGAY INFO POPUP PANEL
-        # Add title placeholder (empty at first)
         title_html = """
         <div id="map-title" style="
              position:absolute;
@@ -264,39 +263,46 @@ with col1:
         """
         map.get_root().html.add_child(folium.Element(title_html))
         
-        # Add polygons with event listeners
-        for _, row in filtered_data.iterrows():
-            folium.GeoJson(
-                row["Geometry"],
-                name=row["Barangay"],
-                style_function=lambda x: {
-                    "fillColor": "orange",
-                    "color": "black",
-                    "weight": 1,
-                    "fillOpacity": 0.5,
-                },
-                highlight_function=lambda x: {"fillOpacity": 0.8},
-                # Add a custom onClick event to update the title dynamically
-                tooltip=row["Barangay"],
-                popup=row["Barangay"],
-            ).add_to(map)
+        # Add GeoJson layer with barangay names as properties
+        geojson_lyr = folium.GeoJson(
+            filtered_data,
+            name="Barangays",
+            style_function=lambda x: {
+                "fillColor": "orange",
+                "color": "black",
+                "weight": 1,
+                "fillOpacity": 0.5,
+            },
+            highlight_function=lambda x: {"fillOpacity": 0.8},
+        ).add_to(map)
         
-        # Add custom JavaScript for dynamic updates
+        # Add tooltip for convenience
+        folium.GeoJsonTooltip(fields=["Barangay"]).add_to(geojson_lyr)
+        
+        # Add custom JS click handler using Leaflet API
         update_js = """
         <script>
-        function attachClickEvents() {
-            var layers = document.querySelectorAll('.leaflet-interactive');
-            layers.forEach(function(layer) {
-                layer.addEventListener('click', function() {
-                    // Try to extract tooltip text (barangay name)
-                    var tooltip = layer.getAttribute('aria-label');
-                    if (tooltip) {
-                        document.getElementById('map-title').innerHTML = tooltip;
-                    }
-                });
+        function onEachFeature(feature, layer) {
+            layer.on('click', function(e) {
+                var brgyName = feature.properties['Barangay'];
+                document.getElementById('map-title').innerHTML = brgyName;
             });
         }
-        document.addEventListener("DOMContentLoaded", attachClickEvents);
+        
+        var layers = Object.values(window);
+        for (var key in layers) {
+            if (layers[key] && layers[key]._layers) {
+                var group = layers[key]._layers;
+                for (var id in group) {
+                    var layer = group[id];
+                    if (layer.feature && layer.feature.properties && layer.feature.properties['Barangay']) {
+                        layer.on('click', function(e) {
+                            document.getElementById('map-title').innerHTML = e.target.feature.properties['Barangay'];
+                        });
+                    }
+                }
+            }
+        }
         </script>
         """
         map.get_root().html.add_child(folium.Element(update_js))
@@ -416,6 +422,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
