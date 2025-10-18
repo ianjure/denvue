@@ -109,7 +109,8 @@ def load_data():
     forecasts["Date"] = pd.to_datetime(forecasts["Date"])
     merged = forecasts.merge(gdf_barangays, on="Barangay", how="left")
     merged_gdf = gpd.GeoDataFrame(merged, geometry="Geometry", crs="EPSG:4326")
-    return merged_gdf, areas
+    
+    return gdf_barangays, merged_gdf
 
 gdf_barangays, merged_all = load_data()
 
@@ -354,6 +355,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
