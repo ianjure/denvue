@@ -204,8 +204,8 @@ with col1:
             data=geojson_data,
             style_function=style_function,
             tooltip=folium.GeoJsonTooltip(
-                fields=["Barangay", "Forecast_Cases_str", "Risk_Level"],
-                aliases=["Barangay:", "Forecasted Cases:", "Risk Level:"],
+                fields=["Barangay", "Forecast_Cases_str", "Relative_Risk_Index", "Risk_Level"],
+                aliases=["Barangay:", "Forecasted Cases:", "Relative Risk Index:", "Risk Level:"],
                 style=("font-weight: bold; font-size: 12px;"),
                 sticky=True,
             ),
@@ -328,12 +328,12 @@ with col2:
     # TABLE SECTION
     st.write("#### **Risk Ranking by Barangay**")
 
-    table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
-    table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Risk_Level": "Risk Level"})
+    table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Relative_Risk_Index', 'Risk_Level']].copy()
+    table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Relative_Risk_Index": "Relative Risk Index", "Risk_Level": "Risk Level"})
     
     risk_order = ["Low", "Medium", "High"]
     table_df["Risk Level"] = pd.Categorical(table_df["Risk Level"], categories=risk_order, ordered=True)
-    table_df = table_df.sort_values(by=['Risk Level', 'Forecasted Cases'], ascending=[False, False]).reset_index(drop=True)
+    table_df = table_df.sort_values(by=['Relative Risk Index'], ascending=[False, False]).reset_index(drop=True)
 
     def color_forecast(val):
         if pd.isna(val):
