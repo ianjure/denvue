@@ -198,6 +198,30 @@ with col1:
         
         filtered_data["Forecast_Cases_str"] = filtered_data["Forecast_Cases"].apply(lambda x: f"{x}")
         geojson_data = json.loads(filtered_data.to_json())
+
+        from shapely.geometry import shape
+
+        # Create a GeoJson layer with visible labels
+        for feature in geojson_data["features"]:
+            coords = shape(feature["geometry"]).centroid.coords[0]
+            barangay_name = feature["properties"]["Barangay"]
+        
+            folium.map.Marker(
+                [coords[1], coords[0]],
+                icon=folium.DivIcon(
+                    html=f"""
+                        <div style="
+                            font-size: 8pt;
+                            font-weight: bold;
+                            color: black;
+                            text-align: center;
+                            transform: translate(-50%, -50%);
+                        ">
+                            {barangay_name}
+                        </div>
+                    """
+                ),
+            ).add_to(map)
         
         # ADD GEOJSON LAYER
         geojson = folium.GeoJson(
@@ -353,6 +377,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
