@@ -226,6 +226,7 @@ with col1:
             draggable=False,
             layer_name="Barangay Labels"
         )
+        map.remove_labels()
         
         # CUSTOM LEGEND
         legend_html = """
@@ -343,3 +344,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
