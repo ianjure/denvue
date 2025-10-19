@@ -334,8 +334,15 @@ with col2:
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Relative_Risk_Index": "Relative Risk Index", "Risk_Level": "Risk Level"})
     
     risk_order = ["Low", "Medium", "High"]
-    table_df["Risk Level"] = pd.Categorical(table_df["Risk Level"], categories=risk_order, ordered=True)
+    table_df["Risk Level"] = pd.Categorical(
+        table_df["Risk Level"], categories=risk_order, ordered=True
+    )
     table_df = table_df.sort_values(by=['Relative Risk Index'], ascending=[False]).reset_index(drop=True)
+    table_df["Relative Risk Index"] = (
+        table_df["Relative Risk Index"]
+        .round(2)
+        .apply(lambda x: f"{x:.2f}".rstrip("0").rstrip("."))
+    )
 
     def color_forecast(val):
         if pd.isna(val):
@@ -346,5 +353,3 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
-
-
