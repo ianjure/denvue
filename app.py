@@ -332,11 +332,13 @@ with col2:
 
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Relative_Risk_Index', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Relative_Risk_Index": "Relative Risk Index", "Risk_Level": "Risk Level"})
+    table_df["Forecast Cases"] = table_df["Forecast Cases"].astype(str)
     
     risk_order = ["Low", "Medium", "High"]
     table_df["Risk Level"] = pd.Categorical(
         table_df["Risk Level"], categories=risk_order, ordered=True
     )
+    
     table_df = table_df.sort_values(by=['Relative Risk Index'], ascending=[False]).reset_index(drop=True)
     table_df["Relative Risk Index"] = (
         table_df["Relative Risk Index"]
