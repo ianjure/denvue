@@ -176,9 +176,9 @@ with col1:
         )
 
         risk_colors = {
-            "Low Risk": "#ffffcc",
-            "Medium Risk": "#fd8d3c",
-            "High Risk": "#bd0026"
+            "Low": "#ffffcc",
+            "Medium": "#fd8d3c",
+            "High": "#bd0026"
         }
         
         def get_color(risk_level):
@@ -233,7 +233,7 @@ with col1:
         {% macro html(this, kwargs) %}
         <div style="
             position: fixed; 
-            bottom: 10px; left: 10px; width: 180px; 
+            bottom: 10px; left: 10px; width: 120px; 
             z-index:9999; font-size:14px;
             background-color: white;
             border:2px solid #ABABAB;
@@ -241,9 +241,9 @@ with col1:
             padding: 10px;
         ">
             <b>Risk Level</b><br>
-            <i style="background:#ffffcc;width:18px;height:18px;float:left;margin-right:8px;"></i>Low Risk<br>
-            <i style="background:#fd8d3c;width:18px;height:18px;float:left;margin-right:8px;"></i>Medium Risk<br>
-            <i style="background:#bd0026;width:18px;height:18px;float:left;margin-right:8px;"></i>High Risk<br>
+            <i style="background:#ffffcc;width:18px;height:18px;float:left;margin-right:8px;"></i>Low<br>
+            <i style="background:#fd8d3c;width:18px;height:18px;float:left;margin-right:8px;"></i>Medium<br>
+            <i style="background:#bd0026;width:18px;height:18px;float:left;margin-right:8px;"></i>High<br>
         </div>
         {% endmacro %}
         """
@@ -314,7 +314,7 @@ with col2:
 
     total_cases = filtered_data['Forecast_Cases'].sum()
 
-    risk_order = {"Low Risk": 1, "Medium Risk": 2, "High Risk": 3}
+    risk_order = {"Low": 1, "Medium": 2, "High": 3}
     filtered_data["Risk_Code"] = filtered_data["Risk_Level"].map(risk_order)
     
     max_row = filtered_data.loc[filtered_data["Risk_Code"].idxmax()]
@@ -331,7 +331,7 @@ with col2:
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Risk_Level": "Risk Level"})
     
-    risk_order = ["Low Risk", "Medium Risk", "High Risk"]
+    risk_order = ["Low", "Medium", "High"]
     table_df["Risk Level"] = pd.Categorical(table_df["Risk Level"], categories=risk_order, ordered=True)
     table_df = table_df.sort_values(by=['Risk Level', 'Forecasted Cases'], ascending=[False, False]).reset_index(drop=True)
 
@@ -344,4 +344,3 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
-
