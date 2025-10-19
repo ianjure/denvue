@@ -207,11 +207,11 @@ with col1:
             style_function=style_function,
             tooltip=folium.GeoJsonTooltip(
                 fields=["Barangay", "Forecast_Cases_str", "Relative_Risk_Index", "Risk_Level"],
-                aliases=["Barangay:", "Forecasted Cases:", "Relative Risk Index:", "Risk Level:"],
+                aliases=["Barangay:", "Forecast Cases:", "Relative Risk Index:", "Risk Level:"],
                 style=("font-weight: bold; font-size: 12px;"),
                 sticky=True,
             ),
-            name="Forecasted Cases",
+            name="Forecast Cases",
             highlight_function=lambda x: {'weight': 3, 'color': 'green'},
             zoom_on_click=True
         ).add_to(map)
@@ -331,7 +331,7 @@ with col2:
     st.write("#### **Risk Ranking by Barangay**")
 
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Relative_Risk_Index', 'Risk_Level']].copy()
-    table_df = table_df.rename(columns={"Forecast_Cases": "Forecasted Cases", "Relative_Risk_Index": "Relative Risk Index", "Risk_Level": "Risk Level"})
+    table_df = table_df.rename(columns={"Forecast_Cases": "Forecast Cases", "Relative_Risk_Index": "Relative Risk Index", "Risk_Level": "Risk Level"})
     table_df["Forecast Cases"] = table_df["Forecast Cases"].astype(str)
     
     risk_order = ["Low", "Medium", "High"]
