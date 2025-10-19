@@ -198,8 +198,6 @@ with col1:
         
         filtered_data["Forecast_Cases_str"] = filtered_data["Forecast_Cases"].apply(lambda x: f"{x}")
         geojson_data = json.loads(filtered_data.to_json())
-
-        print(filtered_data)
         
         # ADD GEOJSON LAYER
         geojson = folium.GeoJson(
