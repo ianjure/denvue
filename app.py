@@ -201,7 +201,8 @@ with col1:
 
         from shapely.geometry import shape
 
-        # Create a GeoJson layer with visible labels
+        
+        # Add polygon labels (hidden by default)
         for feature in geojson_data["features"]:
             coords = shape(feature["geometry"]).centroid.coords[0]
             barangay_name = feature["properties"]["Barangay"]
@@ -210,32 +211,31 @@ with col1:
                 [coords[1], coords[0]],
                 icon=folium.DivIcon(
                     html=f"""
-                        <div style="
+                        <div class="barangay-label" style="
                             font-size: 8pt;
                             font-weight: bold;
                             color: black;
                             text-align: center;
                             transform: translate(-50%, -50%);
+                            display: none;  /* hidden initially */
                         ">
                             {barangay_name}
                         </div>
                     """
                 ),
             ).add_to(map)
-
-        # Add a JavaScript snippet to dynamically scale label font size
+        
+        # Add JS to toggle label visibility based on zoom level
         map.get_root().html.add_child(folium.Element("""
         <script>
-        var mapObj = window.map || Object.values(window)[0];
-        mapObj.on('zoomend', function() {
-            var zoom = mapObj.getZoom();
-            var labels = document.getElementsByClassName('zoom-label');
-            for (var i = 0; i < labels.length; i++) {
-                // adjust scaling factor as needed
-                var size = 6 + zoom * 0.5;  
-                labels[i].style.fontSize = size + 'pt';
-            }
-        });
+            var mapElement = document.querySelector('.leaflet-container');
+            mapElement._leaflet_map.on('zoomend', function() {
+                var zoom = mapElement._leaflet_map.getZoom();
+                var labels = document.getElementsByClassName('barangay-label');
+                for (var i = 0; i < labels.length; i++) {
+                    labels[i].style.display = (zoom >= 13) ? 'block' : 'none';
+                }
+            });
         </script>
         """))
         
@@ -393,6 +393,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
