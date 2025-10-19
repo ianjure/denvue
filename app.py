@@ -214,14 +214,20 @@ with col1:
             zoom_on_click=True
         ).add_to(map)
 
+        # Create centroid columns for labeling
+        gdf_barangays["lon"] = gdf_barangays.geometry.centroid.x
+        gdf_barangays["lat"] = gdf_barangays.geometry.centroid.y
+        
+        # Then call add_labels
         map.add_labels(
             data=gdf_barangays,
             column="Barangay",
+            x="lon",
+            y="lat",
             font_size=8,
-            font_color="black",
             bold=True,
             draggable=False,
-            layer_name="Barangay",
+            layer_name="Barangay
         )
         
         # ADD BARANGAY NAME LAYER
@@ -370,6 +376,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
