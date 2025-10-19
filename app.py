@@ -222,6 +222,22 @@ with col1:
                     """
                 ),
             ).add_to(map)
+
+        # Add a JavaScript snippet to dynamically scale label font size
+        map.get_root().html.add_child(folium.Element("""
+        <script>
+        var mapObj = window.map || Object.values(window)[0];
+        mapObj.on('zoomend', function() {
+            var zoom = mapObj.getZoom();
+            var labels = document.getElementsByClassName('zoom-label');
+            for (var i = 0; i < labels.length; i++) {
+                // adjust scaling factor as needed
+                var size = 6 + zoom * 0.5;  
+                labels[i].style.fontSize = size + 'pt';
+            }
+        });
+        </script>
+        """))
         
         # ADD GEOJSON LAYER
         geojson = folium.GeoJson(
@@ -377,6 +393,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
