@@ -225,7 +225,9 @@ with col1:
             y="lat",
             font_size="8pt",
             draggable=False,
-            layer_name="Barangay Labels"
+            layer_name="Barangay Labels",
+            dx=0,     # shift horizontally (e.g. -5)
+            dy=-5,    # shift vertically (e.g. -5)
         )
         
         # CUSTOM LEGEND
@@ -343,6 +345,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
