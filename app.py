@@ -215,7 +215,7 @@ with col1:
         ).add_to(map)
 
         # ADD BARANGAY NAME LAYER
-        gdf_barangays["lon"] = gdf_barangays.geometry.centroid.x - 5
+        gdf_barangays["lon"] = gdf_barangays.geometry.centroid.x
         gdf_barangays["lat"] = gdf_barangays.geometry.centroid.y
         
         # Create a FeatureGroup for labels (initially hidden)
@@ -352,6 +352,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
