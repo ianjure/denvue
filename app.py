@@ -198,46 +198,6 @@ with col1:
         
         filtered_data["Forecast_Cases_str"] = filtered_data["Forecast_Cases"].apply(lambda x: f"{x}")
         geojson_data = json.loads(filtered_data.to_json())
-
-        from shapely.geometry import shape
-
-        
-        # Add polygon labels (hidden by default)
-        for feature in geojson_data["features"]:
-            coords = shape(feature["geometry"]).centroid.coords[0]
-            barangay_name = feature["properties"]["Barangay"]
-        
-            folium.map.Marker(
-                [coords[1], coords[0]],
-                icon=folium.DivIcon(
-                    html=f"""
-                        <div class="barangay-label" style="
-                            font-size: 8pt;
-                            font-weight: bold;
-                            color: black;
-                            text-align: center;
-                            transform: translate(-50%, -50%);
-                            display: none;  /* hidden initially */
-                        ">
-                            {barangay_name}
-                        </div>
-                    """
-                ),
-            ).add_to(map)
-        
-        # Add JS to toggle label visibility based on zoom level
-        map.get_root().html.add_child(folium.Element("""
-        <script>
-            var mapElement = document.querySelector('.leaflet-container');
-            mapElement._leaflet_map.on('zoomend', function() {
-                var zoom = mapElement._leaflet_map.getZoom();
-                var labels = document.getElementsByClassName('barangay-label');
-                for (var i = 0; i < labels.length; i++) {
-                    labels[i].style.display = (zoom >= 13) ? 'block' : 'none';
-                }
-            });
-        </script>
-        """))
         
         # ADD GEOJSON LAYER
         geojson = folium.GeoJson(
@@ -255,28 +215,27 @@ with col1:
         ).add_to(map)
 
         # ADD BARANGAY NAME LAYER
-        gdf_barangays["lon"] = gdf_barangays.geometry.centroid.x
+        gdf_barangays["lon"] = gdf_barangays.geometry.centroid.x - 5
         gdf_barangays["lat"] = gdf_barangays.geometry.centroid.y
+        
+        # Create a FeatureGroup for labels (initially hidden)
+        label_layer = folium.FeatureGroup(name="Barangay Labels", show=False)
         
         map.add_labels(
             data=gdf_barangays,
             column="Barangay",
             x="lon",
             y="lat",
-            font_size="8pt",
+            font_size="6pt",
             draggable=False,
             layer_name="Barangay Labels"
-        )
-
-        # Center the label text
-        map.get_root().html.add_child(folium.Element("""
-        <style>
-        .leaflet-tooltip.label {
-            text-align: center !important;
-            transform: translate(-50%, -50%) !important;
-        }
-        </style>
-        """))
+        ).add_to(label_layer)
+        
+        # Add the layer to the map (hidden by default)
+        label_layer.add_to(map)
+        
+        # Add a layer control so users can toggle it
+        folium.LayerControl(collapsed=False).add_to(map)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -393,6 +352,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
