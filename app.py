@@ -214,51 +214,19 @@ with col1:
             zoom_on_click=True
         ).add_to(map)
 
-        # Create centroid columns for labeling
+        # ADD BARANGAY NAME LAYER
         gdf_barangays["lon"] = gdf_barangays.geometry.centroid.x
         gdf_barangays["lat"] = gdf_barangays.geometry.centroid.y
         
-        # Then call add_labels
         map.add_labels(
             data=gdf_barangays,
             column="Barangay",
             x="lon",
             y="lat",
-            font_size="10pt",
+            font_size="8pt",
             draggable=False,
-            layer_name="Barangay"
+            layer_name="Barangay Labels"
         )
-        
-        # ADD BARANGAY NAME LAYER
-        labels_layer = folium.FeatureGroup(name="Barangay Labels")
-        
-        for _, row in filtered_data.iterrows():
-            centroid = row["Geometry"].centroid
-            label = row["Barangay"]
-            risk_level = row.get("Risk_Level", "Low Risk")
-            bg_color = risk_colors.get(risk_level, "#ffffcc")
-        
-            text_color = "black" if bg_color.lower() == "#ffffcc" else "white"
-            
-            html = f"""
-            <div style="
-                font-size:6px;
-                font-weight:bold;
-                color:{text_color};
-                border-radius:4px;
-                text-align:center;
-                opacity:0.85;">
-                {label}
-            </div>
-            """
-        
-            folium.Marker(
-                location=[centroid.y, centroid.x],
-                icon=folium.DivIcon(html=html)
-            ).add_to(labels_layer)
-        
-        labels_layer.add_to(map)
-        folium.LayerControl(collapsed=False).add_to(map)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -375,6 +343,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
