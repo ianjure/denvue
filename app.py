@@ -254,68 +254,6 @@ with col1:
         
         labels_layer.add_to(map)
         folium.LayerControl(collapsed=False).add_to(map)
-
-        # ADD BARANGAY INFO POPUP PANEL
-        title_html = """
-        <div id="map-title" style="
-             position:absolute;
-             z-index:10000;
-             background-color:white;
-             border-radius:8px;
-             padding:5px 10px;
-             top:10px;
-             left:50%;
-             transform:translateX(-50%);
-             font-size:16px;
-             font-weight:bold;">
-             Click a barangay
-        </div>
-        """
-        map.get_root().html.add_child(folium.Element(title_html))
-        
-        # Add GeoJson layer with barangay names as properties
-        geojson_lyr = folium.GeoJson(
-            filtered_data,
-            name="Barangays",
-            style_function=lambda x: {
-                "fillColor": "orange",
-                "color": "black",
-                "weight": 1,
-                "fillOpacity": 0.5,
-            },
-            highlight_function=lambda x: {"fillOpacity": 0.8},
-        ).add_to(map)
-        
-        # Add tooltip for convenience
-        folium.GeoJsonTooltip(fields=["Barangay"]).add_to(geojson_lyr)
-        
-        # Add custom JS click handler using Leaflet API
-        update_js = """
-        <script>
-        function onEachFeature(feature, layer) {
-            layer.on('click', function(e) {
-                var brgyName = feature.properties['Barangay'];
-                document.getElementById('map-title').innerHTML = brgyName;
-            });
-        }
-        
-        var layers = Object.values(window);
-        for (var key in layers) {
-            if (layers[key] && layers[key]._layers) {
-                var group = layers[key]._layers;
-                for (var id in group) {
-                    var layer = group[id];
-                    if (layer.feature && layer.feature.properties && layer.feature.properties['Barangay']) {
-                        layer.on('click', function(e) {
-                            document.getElementById('map-title').innerHTML = e.target.feature.properties['Barangay'];
-                        });
-                    }
-                }
-            }
-        }
-        </script>
-        """
-        map.get_root().html.add_child(folium.Element(update_js))
         
         # CUSTOM LEGEND
         legend_html = """
@@ -432,6 +370,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
