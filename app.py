@@ -107,9 +107,9 @@ def load_data():
     forecasts = pd.read_csv("all_models_forecasts.csv")
     forecasts["Date"] = pd.to_datetime(forecasts["Date"])
     merged = forecasts.merge(gdf_barangays, on="Barangay", how="left")
-    merged_gdf = gpd.GeoDataFrame(merged, geometry="Geometry", crs="EPSG:4326")
+    merged_all = gpd.GeoDataFrame(merged, geometry="Geometry", crs="EPSG:4326")
     
-    return gdf_barangays, merged_gdf
+    return gdf_barangays, merged_all
 
 gdf_barangays, merged_all = load_data()
 
@@ -198,6 +198,8 @@ with col1:
         
         filtered_data["Forecast_Cases_str"] = filtered_data["Forecast_Cases"].apply(lambda x: f"{x}")
         geojson_data = json.loads(filtered_data.to_json())
+
+        print(filtered_data)
         
         # ADD GEOJSON LAYER
         geojson = folium.GeoJson(
@@ -344,3 +346,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
