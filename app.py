@@ -221,7 +221,7 @@ with col1:
             font_color="black",
             bold=True,
             draggable=False,
-            layer_name="Barangay Labels",
+            layer_name="Barangay",
         )
         
         # ADD BARANGAY NAME LAYER
@@ -432,6 +432,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
