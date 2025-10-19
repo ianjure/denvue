@@ -215,7 +215,7 @@ with col1:
         ).add_to(map)
 
         map.add_labels(
-            data=filtered_data,
+            data=gdf_barangays,
             column="Barangay",
             font_size=8,
             font_color="black",
@@ -432,6 +432,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
