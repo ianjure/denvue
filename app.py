@@ -213,6 +213,16 @@ with col1:
             highlight_function=lambda x: {'weight': 3, 'color': 'green'},
             zoom_on_click=True
         ).add_to(map)
+
+        map.add_labels(
+            data=filtered_data,
+            column="Barangay",
+            font_size=8,
+            font_color="black",
+            bold=True,
+            draggable=False,
+            layer_name="Barangay Labels",
+        )
         
         # ADD BARANGAY NAME LAYER
         labels_layer = folium.FeatureGroup(name="Barangay Labels")
@@ -422,6 +432,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
