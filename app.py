@@ -225,7 +225,6 @@ with col1:
             x="lon",
             y="lat",
             font_size="10pt",
-            bold=True,
             draggable=False,
             layer_name="Barangay"
         )
@@ -376,6 +375,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
