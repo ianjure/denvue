@@ -215,14 +215,8 @@ with col1:
         ).add_to(map)
 
         # ADD BARANGAY NAME LAYER
-        # ADD BARANGAY NAME LAYER (HIDDEN BY DEFAULT)
         gdf_barangays["lon"] = gdf_barangays.geometry.centroid.x
         gdf_barangays["lat"] = gdf_barangays.geometry.centroid.y
-        
-        # Create a FeatureGroup for labels
-        label_layer = folium.FeatureGroup(name="Barangay Labels", show=False)
-        
-        # Add labels to that FeatureGroup, not directly to the map
         map.add_labels(
             data=gdf_barangays,
             column="Barangay",
@@ -230,14 +224,8 @@ with col1:
             y="lat",
             font_size="6pt",
             draggable=False,
-            layer_name=None  # avoid duplicate nested layer names
+            layer_name="Barangay Labels"
         )
-        
-        # Add FeatureGroup to map (hidden by default)
-        label_layer.add_to(map)
-        
-        # Add layer control so user can toggle visibility
-        folium.LayerControl(collapsed=False).add_to(map)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -261,7 +249,8 @@ with col1:
         legend_macro = MacroElement()
         legend_macro._template = Template(legend_html)
         map.get_root().add_child(legend_macro)
-        
+
+        # SHOW MAP
         map.to_streamlit(height=450, width=None, add_layer_control=False)
 
         # FILTERS CONTROLS
@@ -354,85 +343,3 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
