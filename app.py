@@ -153,7 +153,7 @@ with col1:
         date_range_str = f"{start_date.strftime('%b %d, %Y')} - {end_date.strftime('%b %d, %Y')}"
 
         # MAP SECTION
-        st.write("#### **Dengue Risk Distribution Map** ({date_range_str})")
+        st.write(f"#### **Dengue Risk Distribution Map** ({date_range_str})")
         bounds = filtered_data.total_bounds
         buffer = 0.05
         map = leafmap.Map(
@@ -336,6 +336,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
