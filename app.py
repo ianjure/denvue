@@ -3,6 +3,8 @@ import geopandas as gpd
 import pandas as pd
 from shapely import wkt
 
+from datetime import datetime, timedelta
+
 import folium
 import leafmap.foliumap as leafmap
 from branca.element import Template, MacroElement, Element
@@ -145,8 +147,13 @@ with col1:
 
         filtered_data["Forecast_Cases"] = pd.to_numeric(filtered_data["Forecast_Cases"], errors="coerce").fillna(0)
 
+        # GET THE ACTUAL DATE RANGE
+        start_date = datetime.fromisocalendar(st.session_state.selected_year, st.session_state.selected_week, 1)  # Monday
+        end_date = datetime.fromisocalendar(st.session_state.selected_year, st.session_state.selected_week, 7)    # Sunday
+        date_range_str = f"{start_date.strftime('%b %d, %Y')} - {end_date.strftime('%b %d, %Y')}"
+
         # MAP SECTION
-        st.write(f"#### **Dengue Risk Distribution Map**")
+        st.write(f"#### **Dengue Risk Distribution Map** ({date_range_str})")
         bounds = filtered_data.total_bounds
         buffer = 0.05
         map = leafmap.Map(
@@ -329,5 +336,6 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
