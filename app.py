@@ -159,8 +159,7 @@ with col1:
         with date:
             st.markdown(f"""
             <div style="
-                text-align: right; 
-                position: absolute; 
+                text-align: right;
                 bottom: 0;
                 width: 100%;
             ">
@@ -349,6 +348,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
