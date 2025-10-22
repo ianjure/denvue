@@ -158,12 +158,7 @@ with col1:
             st.write("#### **Dengue Risk Distribution Map**")
         with date:
             st.markdown(f"""
-            <div data-testid="stVerticalBlock" style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            ">
-                <div style="font-size:1.25rem; font-weight:bold;">Dengue Risk Distribution Map</div>
+            <div data-testid="stVerticalBlock">
                 <div style="text-align: right; font-size:1rem;">{date_range_str}</div>
             </div>
             """, unsafe_allow_html=True)
@@ -349,6 +344,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
