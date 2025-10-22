@@ -158,12 +158,13 @@ with col1:
             st.write("#### **Dengue Risk Distribution Map**")
         with date:
             st.markdown(f"""
-            <div style="
-                text-align: right;
-                top: 10;
-                width: 100%;
+            <div data-testid="stVerticalBlock" style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
             ">
-                {date_range_str}
+                <div style="font-size:1.25rem; font-weight:bold;">Dengue Risk Distribution Map</div>
+                <div style="text-align: right; font-size:1rem;">{date_range_str}</div>
             </div>
             """, unsafe_allow_html=True)
         bounds = filtered_data.total_bounds
@@ -348,6 +349,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
