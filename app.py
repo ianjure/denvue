@@ -215,18 +215,21 @@ with col1:
         ).add_to(map)
 
         # ADD BARANGAY NAME LAYER
+        barangay_labels = folium.FeatureGroup(name="Barangay Labels", show=False)
         gdf_barangays["lon"] = gdf_barangays.geometry.centroid.x
         gdf_barangays["lat"] = gdf_barangays.geometry.centroid.y
-        map.add_labels(
-            data=gdf_barangays,
-            column="Barangay",
-            x="lon",
-            y="lat",
-            font_size="6pt",
-            draggable=False,
-            layer_name="Barangay Labels"
-        )
-        map.remove_labels()
+        
+        for idx, row in gdf_barangays.iterrows():
+            folium.map.Marker(
+                location=[row["lat"], row["lon"]],
+                icon=folium.DivIcon(
+                    html=f'<div style="font-size:6pt;font-weight:bold">{row["Barangay"]}</div>'
+                )
+            ).add_to(barangay_labels)
+        
+        # ADD THE LABELS LAYER TO THE MAP
+        barangay_labels.add_to(map)
+        folium.LayerControl().add_to(map)
         
         # CUSTOM LEGEND
         legend_html = """
@@ -353,3 +356,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
