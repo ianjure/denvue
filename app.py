@@ -139,8 +139,8 @@ with col1:
 
         # FILTER DATA
         filtered_data = merged_all[
-            & (merged_all["Year"] == st.session_state.selected_year)
-            & (merged_all["Week"] == st.session_state.selected_week)
+            (merged_all["Year"] == st.session_state.selected_year) &
+            (merged_all["Week"] == st.session_state.selected_week)
         ].copy()
 
         filtered_data["Forecast_Cases"] = pd.to_numeric(filtered_data["Forecast_Cases"], errors="coerce").fillna(0)
@@ -329,3 +329,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
