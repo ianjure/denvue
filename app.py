@@ -157,7 +157,7 @@ with col1:
         with title:
             st.write("#### **Dengue Risk Distribution Map**")
         with date:
-            st.write(f"(date_range_str)")
+            st.markdown(f"<div style='text-align: right'>{date_range_str}</div>", unsafe_allow_html=True)
         bounds = filtered_data.total_bounds
         buffer = 0.05
         map = leafmap.Map(
@@ -340,6 +340,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
