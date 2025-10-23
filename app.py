@@ -343,8 +343,9 @@ with col2:
         if color == "#a1d99b" or color == "#ffff00":
             text_color = "black"
         else:
-            text_color = "black"
+            text_color = "white"
         return f'background-color: {color}; color: {text_color}; font-weight: bold'
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
