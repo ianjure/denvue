@@ -346,7 +346,7 @@ with col2:
     
     risk_order = ["Low", "Moderate", "High", "Critical"]
     table_df["Risk Level"] = pd.Categorical(table_df["Risk Level"], categories=risk_order, ordered=True)
-    table_df = table_df.sort_values(by=['Risk Level', 'Forecasted Cases'], ascending=[False, False]).reset_index(drop=True)
+    table_df = table_df.sort_values(by=['Risk Level', 'Forecast Cases'], ascending=[False, False]).reset_index(drop=True)
 
     def color_forecast(val):
         if pd.isna(val):
