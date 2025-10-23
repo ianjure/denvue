@@ -126,13 +126,16 @@ col1, col2 = st.columns(2)
 # LEFT COLUMN
 with col1:
     with st.container():
-        # SET DEFAULT YEAR
+        # DEFAULTS
         available_years = sorted(merged_all["Year"].unique())
         default_year = 2025 if 2025 in available_years else available_years[-1]
+        default_model = "varmax" if "varmax" in merged_all["Model"].unique() else merged_all["Model"].unique()[0]
 
         # SESSION STATE INITIALIZATION
         if "selected_year" not in st.session_state:
             st.session_state.selected_year = default_year
+        if "selected_model" not in st.session_state:
+            st.session_state.selected_model = default_model
         if "selected_week" not in st.session_state:
             default_weeks = sorted(
                 merged_all[merged_all["Year"] == st.session_state.selected_year]["Week"].unique()
@@ -141,7 +144,8 @@ with col1:
 
         # FILTER DATA
         filtered_data = merged_all[
-            (merged_all["Year"] == st.session_state.selected_year)
+            (merged_all["Model"] == st.session_state.selected_model)
+            & (merged_all["Year"] == st.session_state.selected_year)
             & (merged_all["Week"] == st.session_state.selected_week)
         ].copy()
 
@@ -269,17 +273,37 @@ with col1:
         map.to_streamlit(height=450, width=None, add_layer_control=False)
 
         # FILTERS CONTROLS
-        filter_col1, filter_col2 = st.columns([1, 3])
-        
+        filter_col1, filter_col2, filter_col3 = st.columns([2, 1, 3])
+
         with filter_col1:
+            model_name_map = {
+                "linear_regression": "Linear Regression",
+                "varmax": "VARMAX",
+                "random_forest": "Random Forest",
+                "xgboost": "XGBoost",
+            }
+            model_display_names = [
+                model_name_map[m] for m in merged_all["Model"].unique() if m in model_name_map
+            ]
+            model_display_to_key = {v: k for k, v in model_name_map.items()}
+        
+            selected_model_display = st.selectbox(
+                "Select Model",
+                model_display_names,
+                index=model_display_names.index(model_name_map[st.session_state.selected_model]),
+            )
+            selected_model = model_display_to_key[selected_model_display]
+        
+        with filter_col2:
             selected_year = st.selectbox(
                 "Select Year",
                 available_years,
                 index=available_years.index(st.session_state.selected_year)
             )
         
-        with filter_col2:
-            year_data = merged_all[merged_all["Year"] == selected_year].copy()
+        with filter_col3:
+            model_data = merged_all[merged_all["Model"] == selected_model]
+            year_data = model_data[model_data["Year"] == selected_year].copy()
             available_weeks = sorted(year_data["Week"].unique())
         
             selected_week = st.select_slider(
@@ -293,9 +317,11 @@ with col1:
         # UPDATE SESSION STATE ON CHANGE
         if (
             selected_year != st.session_state.selected_year
+            or selected_model != st.session_state.selected_model
             or selected_week != st.session_state.selected_week
         ):
             st.session_state.selected_year = selected_year
+            st.session_state.selected_model = selected_model
             st.session_state.selected_week = selected_week
             st.rerun()
             
@@ -306,7 +332,7 @@ with col2:
 
     total_cases = filtered_data['Forecast_Cases'].sum()
 
-    risk_order = {"Low": 1, "Medium": 2, "High": 3}
+    risk_order = {"Low": 1, "Moderate": 2, "High": 3, "Critical": 4}
     filtered_data["Risk_Code"] = filtered_data["Risk_Level"].map(risk_order)
     
     max_row = filtered_data.loc[filtered_data["Risk_Code"].idxmax()]
@@ -320,21 +346,14 @@ with col2:
     # TABLE SECTION
     st.write("#### **Risk Ranking by Barangay**")
 
-    table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Relative_Risk_Index', 'Risk_Level']].copy()
-    table_df = table_df.rename(columns={"Forecast_Cases": "Forecast Cases", "Relative_Risk_Index": "Relative Risk Index", "Risk_Level": "Risk Level"})
+    table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Confidence', 'Risk_Level']].copy()
+    table_df = table_df.rename(columns={"Forecast_Cases": "Forecast Cases", "Confidence": "Confidence", "Risk_Level": "Risk Level"})
     table_df["Forecast Cases"] = table_df["Forecast Cases"].astype(str)
+    table_df["Confidence"] = (table_df["Confidence"] * 100).round(1).astype(str) + "%"
     
-    risk_order = ["Low", "Medium", "High"]
-    table_df["Risk Level"] = pd.Categorical(
-        table_df["Risk Level"], categories=risk_order, ordered=True
-    )
-    
-    table_df = table_df.sort_values(by=['Relative Risk Index'], ascending=[False]).reset_index(drop=True)
-    table_df["Relative Risk Index"] = (
-        table_df["Relative Risk Index"]
-        .round(2)
-        .apply(lambda x: f"{x:.2f}".rstrip("0").rstrip("."))
-    )
+    risk_order = ["Low", "Moderate", "High", "Critical"]
+    table_df["Risk Level"] = pd.Categorical(table_df["Risk Level"], categories=risk_order, ordered=True)
+    table_df = table_df.sort_values(by=['Risk Level', 'Forecasted Cases'], ascending=[False, False]).reset_index(drop=True)
 
     def color_forecast(val):
         if pd.isna(val):
@@ -348,4 +367,3 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
-
