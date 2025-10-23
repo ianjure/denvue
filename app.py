@@ -181,20 +181,13 @@ with col1:
             layer_control=False,
             search_control=False,
         )
-
+        
         risk_colors = {
             "Low": "#a1d99b",
             "Moderate": "#ffff00",
-            "High": "#fd8d3c"
+            "High": "#fd8d3c",
+            "Critical": "#e31a1c"
         }
-        """
-        risk_colors = {
-            "Low": "#a1d99b",       # green
-            "Moderate": "#ffff00",  # yellow
-            "High": "#fd8d3c",      # orange
-            "Critical": "#e31a1c"   # red
-        }
-        """
         
         def get_color(risk_level):
             if pd.isna(risk_level):
@@ -219,8 +212,8 @@ with col1:
             data=geojson_data,
             style_function=style_function,
             tooltip=folium.GeoJsonTooltip(
-                fields=["Barangay", "Forecast_Cases_str", "Relative_Risk_Index", "Risk_Level"],
-                aliases=["Barangay:", "Forecast Cases:", "Relative Risk Index:", "Risk Level:"],
+                fields=["Barangay", "Forecast_Cases_str", "Confidence", "Risk_Level"],
+                aliases=["Barangay:", "Forecast Cases:", "Confidence:", "Risk Level:"],
                 style=("font-weight: bold; font-size: 12px;"),
                 sticky=True,
             ),
