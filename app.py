@@ -183,6 +183,14 @@ with col1:
             "Medium": "#fd8d3c",
             "High": "#bd0026"
         }
+        """
+        risk_colors = {
+            "Low": "#a1d99b",       # green
+            "Moderate": "#ffff00",  # yellow
+            "High": "#fd8d3c",      # orange
+            "Critical": "#e31a1c"   # red
+        }
+        """
         
         def get_color(risk_level):
             if pd.isna(risk_level):
@@ -246,9 +254,10 @@ with col1:
             padding: 10px;
         ">
             <b>Risk Level</b><br>
-            <i style="background:#ffffcc;width:18px;height:18px;float:left;margin-right:8px;"></i>Low<br>
-            <i style="background:#fd8d3c;width:18px;height:18px;float:left;margin-right:8px;"></i>Medium<br>
-            <i style="background:#bd0026;width:18px;height:18px;float:left;margin-right:8px;"></i>High<br>
+            <i style="background:#a1d99b;width:18px;height:18px;float:left;margin-right:8px;"></i>Low<br>
+            <i style="background:#ffff00;width:18px;height:18px;float:left;margin-right:8px;"></i>Moderate<br>
+            <i style="background:#fd8d3c;width:18px;height:18px;float:left;margin-right:8px;"></i>High<br>
+            <i style="background:#e31a1c;width:18px;height:18px;float:left;margin-right:8px;"></i>Critical<br>
         </div>
         {% endmacro %}
         """
@@ -336,6 +345,7 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
 
 
 
