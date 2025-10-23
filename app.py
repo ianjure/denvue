@@ -340,7 +340,7 @@ with col2:
         if pd.isna(val):
             return 'background-color: #a1d99b; color: black'
         color = risk_colors.get(val, "#a1d99b")
-        if color != "#a1d99b" or color != "#ffff00"
+        if color != "#a1d99b" or color != "#ffff00":
             text_color = "white"
         else:
             text_color = "black"
@@ -348,3 +348,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
