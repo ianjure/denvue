@@ -179,9 +179,9 @@ with col1:
         )
 
         risk_colors = {
-            "Low": "#ffffcc",
-            "Medium": "#fd8d3c",
-            "High": "#bd0026"
+            "Low": "#a1d99b",
+            "Moderate": "#ffff00",
+            "High": "#fd8d3c"
         }
         """
         risk_colors = {
@@ -194,8 +194,8 @@ with col1:
         
         def get_color(risk_level):
             if pd.isna(risk_level):
-                return "#ffffcc"
-            return risk_colors.get(risk_level, "#ffffcc")
+                return "#a1d99b"
+            return risk_colors.get(risk_level, "#a1d99b")
         
         def style_function(feature):
             risk_level = feature["properties"].get("Risk_Level", None)
@@ -338,22 +338,13 @@ with col2:
 
     def color_forecast(val):
         if pd.isna(val):
-            return 'background-color: #ffffcc; color: black'
-        color = risk_colors.get(val, "#ffffcc")
-        text_color = "white" if color != "#ffffcc" else "black"
+            return 'background-color: #a1d99b; color: black'
+        color = risk_colors.get(val, "#a1d99b")
+        text_color = "white" if color != "#a1d99b" or color != "#ffff00" else "black"
         return f'background-color: {color}; color: {text_color}; font-weight: bold'
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
-
-
-
-
-
-
-
-
-
 
 
 
