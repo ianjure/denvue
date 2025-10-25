@@ -43,10 +43,23 @@ st.markdown(toolbar_bg, unsafe_allow_html=True)
 # [STREAMLIT] HIDE MENU
 hide_menu = """
 <style>
-div[data-testid="stToolbarActions"] {
-    display: none;
+#MainMenu {
+    visibility: hidden;
 }
-span[data-testid="stMainMenu"] {
+footer {
+    visibility: hidden;
+}
+div[data-testid="stDecoration"] {
+    visibility: hidden;
+    height: 0%;
+    position: fixed;
+}
+div[data-testid="stStatusWidget"] {
+    visibility: hidden;
+    height: 0%;
+    position: fixed;
+}
+[data-testid="stToolbar"] {
     display: none;
 }
 </style>
@@ -403,5 +416,6 @@ with button_container:
     if st.button("⚙️", type="secondary"):
         open_options()
     
-button_css = float_css_helper(width="3rem", height="3rem", right="3rem", top="2rem", transition=0)
+button_css = float_css_helper(width="3rem", height="3rem", right="1rem", top="1rem", transition=0)
 button_container.float(button_css)
+
