@@ -379,7 +379,7 @@ def open_model_options():
 button_container = st.container()
 with button_container:
     if st.button("⚙️"):
-        open_options()
+        open_model_options()
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
