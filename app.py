@@ -410,10 +410,8 @@ def open_options():
 
 button_container = st.container()
 with button_container:
-    if st.button("⚙️", type="secondary"):
+    if st.button("⚙️"):
         open_options()
     
-button_css = float_css_helper(width="3rem", height="3rem", right="1rem", top="1rem", transition=0)
+button_css = float_css_helper(width="3rem", height="3rem", right="1rem", top="0.5rem", transition=0)
 button_container.float(button_css)
-
-
