@@ -21,13 +21,13 @@ st.logo(image="logo.png", size="large")
 
 # [STREAMLIT] ADJUST PADDING
 padding = """
-    <style>
-    .block-container {
-        padding-top: 0rem;
-        padding-bottom: 2.5rem;
-    }
-    </style>
-    """
+<style>
+.block-container {
+    padding-top: 0rem;
+    padding-bottom: 2.5rem;
+}
+</style>
+"""
 st.markdown(padding, unsafe_allow_html=True)
 
 # [STREAMLIT] TOOLBAR BACKGROUND
@@ -42,16 +42,26 @@ st.markdown(toolbar_bg, unsafe_allow_html=True)
 
 # [STREAMLIT] HIDE MENU
 hide_menu = """
-    <style>
-    div[data-testid="stToolbarActions"] {
-        display: none;
-    }
-    span[data-testid="stMainMenu"] {
-        display: none;
-    }
-    </style>
-    """
+<style>
+div[data-testid="stToolbarActions"] {
+    display: none;
+}
+span[data-testid="stMainMenu"] {
+    display: none;
+}
+</style>
+"""
 st.markdown(hide_menu, unsafe_allow_html=True)
+
+# [STREAMLIT] ADJUST HEADER
+header = """
+<style>
+[data-testid="stHeader"] {
+    z-index: 1;
+}
+</style>
+    """
+st.markdown(header, unsafe_allow_html=True)
 
 # [STREAMLIT] HEADER COLOR
 header_color = """
@@ -393,5 +403,5 @@ with button_container:
     if st.button("⚙️", type="secondary"):
         open_options()
     
-button_css = float_css_helper(width="1.8rem", height="2rem", right="3rem", top="2rem", transition=0)
+button_css = float_css_helper(width="3rem", height="3rem", right="3rem", top="2rem", transition=0)
 button_container.float(button_css)
