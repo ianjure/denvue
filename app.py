@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit_float import *
 from PIL import Image
 
 import geopandas as gpd
@@ -363,3 +364,34 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
+# MODEL OPTIONS
+float_init()
+
+@st.dialog("Model Options")
+def open_options():
+    model_name_map = {
+        "linear_regression": "Linear Regression",
+        "varmax": "VARMAX",
+        "random_forest": "Random Forest",
+        "xgboost": "XGBoost",
+    }
+    model_display_names = [
+        model_name_map[m] for m in merged_all["Model"].unique() if m in model_name_map
+    ]
+    model_display_to_key = {v: k for k, v in model_name_map.items()}
+
+    selected_model_display = st.selectbox(
+        "Select Model",
+        model_display_names,
+        index=model_display_names.index(model_name_map[st.session_state.selected_model]),
+    )
+    selected_model = model_display_to_key[selected_model_display]
+
+button_container = st.container()
+with button_container:
+    if st.button("⚙️", type="secondary"):
+        open_options()
+    
+button_css = float_css_helper(width="1.8rem", height="2rem", right="3rem", top="2rem", transition=0)
+button_container.float(button_css)
