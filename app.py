@@ -165,6 +165,7 @@ filtered_data = merged_all[
 ].copy()
 
 filtered_data["Forecast_Cases"] = pd.to_numeric(filtered_data["Forecast_Cases"], errors="coerce").fillna(0)
+filtered_data["Confidence"] = (filtered_data["Confidence"] * 100).round(1).astype(str) + "%"
 
 # DASHBOARD LAYOUT
 col1, col2 = st.columns(2)
@@ -333,7 +334,6 @@ with col2:
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Confidence', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecast Cases", "Confidence": "Confidence", "Risk_Level": "Risk Level"})
     table_df["Forecast Cases"] = table_df["Forecast Cases"].astype(str)
-    table_df["Confidence"] = (table_df["Confidence"] * 100).round(1).astype(str) + "%"
     
     risk_order = ["Low", "Moderate", "High", "Critical"]
     table_df["Risk Level"] = pd.Categorical(table_df["Risk Level"], categories=risk_order, ordered=True)
