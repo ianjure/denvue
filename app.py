@@ -225,7 +225,7 @@ with col1:
             }
         
         filtered_data["Forecast_Cases_str"] = filtered_data["Forecast_Cases"].apply(lambda x: f"{x}")
-        geojson_data = json.loads(filtered_data.to_json())
+        geojson_data = json.loads(filtered_data[["Geometry", "Barangay", "Forecast_Cases_str", "Confidence", "Risk_Level"]].to_json())
         
         # ADD GEOJSON LAYER
         geojson = folium.GeoJson(
@@ -384,3 +384,4 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
