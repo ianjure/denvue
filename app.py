@@ -153,7 +153,7 @@ with col1:
         # DEFAULTS
         available_years = sorted(merged_all["Year"].unique())
         default_year = 2025 if 2025 in available_years else available_years[-1]
-        default_model = "xgboost" if "xgboost" in merged_all["Model"].unique() else merged_all["Model"].unique()[0]
+        default_model = "random_forest" if "random_forest" in merged_all["Model"].unique() else merged_all["Model"].unique()[0]
 
         # SESSION STATE INITIALIZATION
         if "selected_year" not in st.session_state:
@@ -290,35 +290,16 @@ with col1:
         map.to_streamlit(height=450, width=None, add_layer_control=False)
 
         # FILTERS CONTROLS
-        filter_col1, filter_col2, filter_col3 = st.columns([2, 1, 3])
-
+        filter_col1, filter_col2 = st.columns([1, 3])
+        
         with filter_col1:
-            model_name_map = {
-                "linear_regression": "Linear Regression",
-                "varmax": "VARMAX",
-                "random_forest": "Random Forest",
-                "xgboost": "XGBoost",
-            }
-            model_display_names = [
-                model_name_map[m] for m in merged_all["Model"].unique() if m in model_name_map
-            ]
-            model_display_to_key = {v: k for k, v in model_name_map.items()}
-        
-            selected_model_display = st.selectbox(
-                "Select Model",
-                model_display_names,
-                index=model_display_names.index(model_name_map[st.session_state.selected_model]),
-            )
-            selected_model = model_display_to_key[selected_model_display]
-        
-        with filter_col2:
             selected_year = st.selectbox(
                 "Select Year",
                 available_years,
                 index=available_years.index(st.session_state.selected_year)
             )
         
-        with filter_col3:
+        with filter_col2:
             model_data = merged_all[merged_all["Model"] == selected_model]
             year_data = model_data[model_data["Year"] == selected_year].copy()
             available_weeks = sorted(year_data["Week"].unique())
@@ -408,10 +389,15 @@ def open_options():
     )
     selected_model = model_display_to_key[selected_model_display]
 
+    # UPDATE SESSION STATE ON CHANGE
+    if selected_model != st.session_state.selected_model:
+        st.session_state.selected_model = selected_model
+        st.rerun()
+
 button_container = st.container()
 with button_container:
     if st.button("⚙️"):
         open_options()
     
-button_css = float_css_helper(width="3rem", height="3rem", right="1rem", top="0.5rem", transition=0)
+button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
