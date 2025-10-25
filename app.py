@@ -139,10 +139,31 @@ def load_data():
 
 gdf_barangays, merged_all = load_data()
 
-# DATA PREPARATION
-merged_all["Year"] = merged_all["Date"].dt.year
+# SESSION STATE
+available_years = sorted(merged_all["Year"].unique()) if "Year" in merged_all.columns else sorted(merged_all["Date"].dt.year.unique())
+if "Year" not in merged_all.columns:
+    merged_all["Year"] = merged_all["Date"].dt.year
 merged_all["Week"] = merged_all["Date"].dt.isocalendar().week.astype(int)
-merged_all["Date"] = merged_all["Date"].astype(str)
+
+model_list = merged_all["Model"].unique()
+default_model = "random_forest" if "random_forest" in model_list else model_list[0]
+default_year = 2025 if 2025 in available_years else available_years[-1]
+
+st.session_state.setdefault("selected_model", default_model)
+st.session_state.setdefault("selected_year", default_year)
+
+year_weeks = sorted(merged_all[merged_all["Year"] == st.session_state.selected_year]["Week"].unique())
+if "selected_week" not in st.session_state:
+    st.session_state.selected_week = min(year_weeks) if year_weeks else 1
+
+# FILTER DATA
+filtered_data = merged_all[
+    (merged_all["Model"] == st.session_state.selected_model)
+    & (merged_all["Year"] == st.session_state.selected_year)
+    & (merged_all["Week"] == st.session_state.selected_week)
+].copy()
+
+filtered_data["Forecast_Cases"] = pd.to_numeric(filtered_data["Forecast_Cases"], errors="coerce").fillna(0)
 
 # DASHBOARD LAYOUT
 col1, col2 = st.columns(2)
@@ -150,31 +171,6 @@ col1, col2 = st.columns(2)
 # LEFT COLUMN
 with col1:
     with st.container():
-        # DEFAULTS
-        available_years = sorted(merged_all["Year"].unique())
-        default_year = 2025 if 2025 in available_years else available_years[-1]
-        default_model = "random_forest" if "random_forest" in merged_all["Model"].unique() else merged_all["Model"].unique()[0]
-
-        # SESSION STATE INITIALIZATION
-        if "selected_year" not in st.session_state:
-            st.session_state.selected_year = default_year
-        if "selected_model" not in st.session_state:
-            st.session_state.selected_model = default_model
-        if "selected_week" not in st.session_state:
-            default_weeks = sorted(
-                merged_all[merged_all["Year"] == st.session_state.selected_year]["Week"].unique()
-            )
-            st.session_state.selected_week = min(default_weeks) if default_weeks else 1
-
-        # FILTER DATA
-        filtered_data = merged_all[
-            (merged_all["Model"] == st.session_state.selected_model)
-            & (merged_all["Year"] == st.session_state.selected_year)
-            & (merged_all["Week"] == st.session_state.selected_week)
-        ].copy()
-
-        filtered_data["Forecast_Cases"] = pd.to_numeric(filtered_data["Forecast_Cases"], errors="coerce").fillna(0)
-
         # GET THE ACTUAL DATE RANGE
         start_date = datetime.fromisocalendar(st.session_state.selected_year, st.session_state.selected_week, 1)  # Monday
         end_date = datetime.fromisocalendar(st.session_state.selected_year, st.session_state.selected_week, 7)    # Sunday
@@ -300,26 +296,16 @@ with col1:
             )
         
         with filter_col2:
-            model_data = merged_all[merged_all["Model"] == selected_model]
-            year_data = model_data[model_data["Year"] == selected_year].copy()
-            available_weeks = sorted(year_data["Week"].unique())
-        
+            available_weeks = sorted(merged_all[merged_all["Year"] == selected_year]["Week"].unique())
             selected_week = st.select_slider(
                 "Select Week",
-                options=available_weeks,
+                available_weeks, 
                 value=st.session_state.selected_week
-                if st.session_state.selected_week in available_weeks
-                else min(available_weeks),
             )
         
         # UPDATE SESSION STATE ON CHANGE
-        if (
-            selected_year != st.session_state.selected_year
-            or selected_model != st.session_state.selected_model
-            or selected_week != st.session_state.selected_week
-        ):
+        if selected_year != st.session_state.selected_year or selected_week != st.session_state.selected_week:
             st.session_state.selected_year = selected_year
-            st.session_state.selected_model = selected_model
             st.session_state.selected_week = selected_week
             st.rerun()
             
@@ -327,7 +313,6 @@ with col1:
 with col2:
     # METRICS SECTION
     st.write("#### **Summary Metrics**")
-
     total_cases = filtered_data['Forecast_Cases'].sum()
 
     risk_order = {"Low": 1, "Moderate": 2, "High": 3, "Critical": 4}
@@ -370,24 +355,22 @@ with col2:
 float_init()
 
 @st.dialog("Model Options")
-def open_options():
+def open_model_options():
     model_name_map = {
         "linear_regression": "Linear Regression",
         "varmax": "VARMAX",
         "random_forest": "Random Forest",
         "xgboost": "XGBoost",
     }
-    model_display_names = [
-        model_name_map[m] for m in merged_all["Model"].unique() if m in model_name_map
-    ]
-    model_display_to_key = {v: k for k, v in model_name_map.items()}
+    model_display = [model_name_map[m] for m in merged_all["Model"].unique() if m in model_name_map]
+    model_to_key = {v: k for k, v in model_name_map.items()}
 
     selected_model_display = st.selectbox(
         "Select Model",
-        model_display_names,
-        index=model_display_names.index(model_name_map[st.session_state.selected_model]),
+        model_display,
+        index=model_display.index(model_name_map[st.session_state.selected_model]),
     )
-    selected_model = model_display_to_key[selected_model_display]
+    selected_model = model_to_key[selected_model_display]
 
     # UPDATE SESSION STATE ON CHANGE
     if selected_model != st.session_state.selected_model:
