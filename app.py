@@ -129,7 +129,7 @@ with col1:
         # DEFAULTS
         available_years = sorted(merged_all["Year"].unique())
         default_year = 2025 if 2025 in available_years else available_years[-1]
-        default_model = "varmax" if "varmax" in merged_all["Model"].unique() else merged_all["Model"].unique()[0]
+        default_model = "xgboost" if "xgboost" in merged_all["Model"].unique() else merged_all["Model"].unique()[0]
 
         # SESSION STATE INITIALIZATION
         if "selected_year" not in st.session_state:
@@ -360,3 +360,4 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
