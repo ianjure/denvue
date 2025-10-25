@@ -18,6 +18,7 @@ import json
 icon = Image.open("icon.png")
 st.set_page_config(page_title="Denvue Dashboard", layout="wide", page_icon=icon)
 st.logo(image="logo.png", size="large")
+float_init()
 
 # [STREAMLIT] ADJUST PADDING
 padding = """
@@ -352,8 +353,6 @@ with col2:
     st.dataframe(styled_table, width='stretch', height=380)
 
 # MODEL OPTIONS
-float_init()
-
 @st.dialog("Model Options")
 def open_model_options():
     model_name_map = {
@@ -384,4 +383,3 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
-
