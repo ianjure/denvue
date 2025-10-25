@@ -1,4 +1,6 @@
 import streamlit as st
+from PIL import Image
+
 import geopandas as gpd
 import pandas as pd
 from shapely import wkt
@@ -12,7 +14,8 @@ import numpy as np
 import json
 
 # PAGE CONFIG
-st.set_page_config(page_title="Denvue Dashboard", layout="wide")
+icon = Image.open("icon.png")
+st.set_page_config(page_title="Denvue Dashboard", layout="wide", page_icon=icon)
 st.logo(image="logo.png", size="large")
 
 # [STREAMLIT] ADJUST PADDING
@@ -183,16 +186,16 @@ with col1:
         )
         
         risk_colors = {
-            "Low": "#FFFFEA",
-            "Moderate": "#FEC38E",
-            "High": "#FD8D3C",
-            "Critical": "#BD0026"
+            "Low": "#89B4BB",
+            "Moderate": "#557265",
+            "High": "#1A484F",
+            "Critical": "#0B1818"
         }
         
         def get_color(risk_level):
             if pd.isna(risk_level):
-                return "#FFFFEA"
-            return risk_colors.get(risk_level, "#FFFFEA")
+                return "#89B4BB"
+            return risk_colors.get(risk_level, "#89B4BB")
         
         def style_function(feature):
             risk_level = feature["properties"].get("Risk_Level", None)
@@ -251,10 +254,10 @@ with col1:
             padding: 10px;
         ">
             <b>Risk Level</b><br>
-            <i style="background:#FFFFEA;width:18px;height:18px;float:left;margin-right:8px;"></i>Low<br>
-            <i style="background:#FEC38E;width:18px;height:18px;float:left;margin-right:8px;"></i>Moderate<br>
-            <i style="background:#FD8D3C;width:18px;height:18px;float:left;margin-right:8px;"></i>High<br>
-            <i style="background:#BD0026;width:18px;height:18px;float:left;margin-right:8px;"></i>Critical<br>
+            <i style="background:#89B4BB;width:18px;height:18px;float:left;margin-right:8px;"></i>Low<br>
+            <i style="background:#557265;width:18px;height:18px;float:left;margin-right:8px;"></i>Moderate<br>
+            <i style="background:#1A484F;width:18px;height:18px;float:left;margin-right:8px;"></i>High<br>
+            <i style="background:#0B1818;width:18px;height:18px;float:left;margin-right:8px;"></i>Critical<br>
         </div>
         {% endmacro %}
         """
@@ -350,9 +353,9 @@ with col2:
 
     def color_forecast(val):
         if pd.isna(val):
-            return 'background-color: #FFFFEA; color: black'
-        color = risk_colors.get(val, "#FFFFEA")
-        if color == "#FFFFEA" or color == "#FEC38E":
+            return 'background-color: #89B4BB; color: black'
+        color = risk_colors.get(val, "#89B4BB")
+        if color == "#89B4BB" or color == "#557265":
             text_color = "black"
         else:
             text_color = "white"
