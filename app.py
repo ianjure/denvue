@@ -385,7 +385,8 @@ with col2:
         return f'background-color: {color}; color: {text_color}; font-weight: bold'
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
-    st.dataframe(styled_table, width='stretch', height=380)
+    #st.dataframe(styled_table, width='stretch', height=380)
+    st.dataframe(styled_table, width='stretch', height=300)
 
     st.write("""
     The Barangay Risk Level shows how the current forecast compares to that barangay’s own forecast history.
@@ -423,3 +424,4 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
