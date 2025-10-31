@@ -366,51 +366,54 @@ with col2:
 
     # TABLE SECTION
     st.write("#### **Risk Ranking by Barangay**")
-    tooltip_html = """
-    <div style='display: flex; align-items: center; gap: 6px; margin-bottom: 10px;'>
-        <span style='font-size: 1.1rem; font-weight: 600;'>Risk Ranking by Barangay</span>
-        <span class="info-icon2" style="cursor: default; display: flex; align-items: center;">
-            <i class="material-symbols-outlined" style="font-size: 1rem; color: #444; cursor: default;">info</i>
+    html = """
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    
+    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+        <span style="font-size:1.1rem; font-weight:600;">Risk Ranking by Barangay</span>
+    
+        <span class="info-icon2" style="position:relative; display:inline-flex; align-items:center; cursor:help;">
+            <span class="material-symbols-outlined" style="font-size:18px; margin-left:4px;">info</span>
             <div class="info-tooltip2">
                 Shows each barangay's dengue risk ranking based on current model outputs
                 and recent environmental and case data.
             </div>
         </span>
-    
-        <style>
-            @import url('https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined');
-    
-            .info-icon2 {{
-                position: relative;
-            }}
-    
-            .info-tooltip2 {{
-                visibility: hidden;
-                opacity: 0;
-                width: 240px;
-                background-color: #333;
-                color: #fff;
-                text-align: left;
-                border-radius: 6px;
-                padding: 8px;
-                position: absolute;
-                z-index: 10;
-                bottom: 125%;
-                left: 50%;
-                transform: translateX(-50%);
-                transition: opacity 0.3s;
-                font-size: 0.85rem;
-                line-height: 1.3;
-            }}
-    
-            .info-icon2:hover .info-tooltip2 {{
-                visibility: visible;
-                opacity: 1;
-            }}
-        </style>
     </div>
+    
+    <style>
+    .info-icon2 {
+        position: relative;
+    }
+    
+    .info-tooltip2 {
+        visibility: hidden;
+        opacity: 0;
+        width: 240px;
+        background-color: #333;
+        color: #fff;
+        text-align: left;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 9999;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: opacity 0.2s ease;
+        font-size: 0.85rem;
+        line-height: 1.3;
+        pointer-events: none;
+    }
+    
+    .info-icon2:hover .info-tooltip2 {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+    }
+    </style>
     """
-    st.markdown(tooltip_html, unsafe_allow_html=True)
+    st.markdown(html, unsafe_allow_html=True)
 
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Confidence', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecast Cases", "Confidence": "Confidence", "Risk_Level": "Risk Level"})
@@ -464,6 +467,7 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
 
 
 
