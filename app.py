@@ -366,7 +366,7 @@ with col2:
 
     # TABLE SECTION
     st.write("#### **Risk Ranking by Barangay**")
-    tooltip_html = f"""
+    tooltip_html = """
     <div style='display: flex; align-items: center; gap: 6px; margin-bottom: 10px;'>
         <span style='font-size: 1.1rem; font-weight: 600;'>Risk Ranking by Barangay</span>
         <span class="info-icon2" style="cursor: default; display: flex; align-items: center;">
@@ -411,7 +411,6 @@ with col2:
     </div>
     """
     st.markdown(tooltip_html, unsafe_allow_html=True)
-
 
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Confidence', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecast Cases", "Confidence": "Confidence", "Risk_Level": "Risk Level"})
@@ -465,6 +464,7 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
 
 
 
