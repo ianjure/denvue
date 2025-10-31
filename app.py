@@ -206,9 +206,9 @@ with col1:
         
         risk_colors = {
             "Low": "#E9F3F2",
-            "Moderate": "#FFCC00",
-            "High": "#FF9900",
-            "Critical": "#FF0000"
+            "Moderate": "#F3B705",
+            "High": "#F17404",
+            "Critical": "#D9042C"
         }
         
         def get_color(risk_level):
@@ -273,10 +273,10 @@ with col1:
             padding: 10px;
         ">
             <b>Risk Level</b><br>
-            <i style="background:#E9F3F2;width:18px;height:18px;float:left;margin-right:8px;"></i>Low<br>
-            <i style="background:#FFCC00;width:18px;height:18px;float:left;margin-right:8px;"></i>Moderate<br>
-            <i style="background:#FF9900;width:18px;height:18px;float:left;margin-right:8px;"></i>High<br>
-            <i style="background:#FF0000;width:18px;height:18px;float:left;margin-right:8px;"></i>Critical<br>
+            <i style="background:#E9F3F2;width:18px;height:18px;float:left;margin-right:8px;border:1px solid #ccc;"></i>Low<br>
+            <i style="background:#F3B705;width:18px;height:18px;float:left;margin-right:8px;border:1px solid #ccc;"></i>Moderate<br>
+            <i style="background:#F17404;width:18px;height:18px;float:left;margin-right:8px;border:1px solid #ccc;"></i>High<br>
+            <i style="background:#D9042C;width:18px;height:18px;float:left;margin-right:8px;border:1px solid #ccc;"></i>Critical<br>
         </div>
         {% endmacro %}
         """
@@ -383,4 +383,5 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
 
