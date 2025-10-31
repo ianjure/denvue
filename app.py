@@ -335,10 +335,15 @@ with col1:
         
         with filter_col2:
             available_weeks = sorted(merged_all[merged_all["Year"] == selected_year]["Week"].unique())
+            
+            default_week = st.session_state.selected_week
+            if default_week not in available_weeks:
+                default_week = available_weeks[0] if available_weeks else 1
+            
             selected_week = st.select_slider(
                 "Select Week",
-                available_weeks, 
-                value=st.session_state.selected_week
+                available_weeks,
+                value=default_week
             )
         
         # UPDATE SESSION STATE ON CHANGE
@@ -418,3 +423,4 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
