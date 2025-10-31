@@ -367,40 +367,27 @@ with col2:
     # TABLE SECTION
     st.write("#### **Risk Ranking by Barangay**")
     st.markdown("""
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-    
-    <div style="display:flex; align-items:center; gap:6px;">
-        <h4 style="margin:0;">Risk Ranking by Barangay</h4>
-        <span style="position:relative; cursor:help;">
-            <span class="material-symbols-outlined" style="font-size:18px; color:#444;">info</span>
-            <span style="
-                visibility:hidden;
-                opacity:0;
-                width:200px;
-                background:#333;
-                color:#fff;
-                text-align:left;
-                border-radius:6px;
-                padding:6px;
-                position:absolute;
-                z-index:10;
-                bottom:125%;
-                left:50%;
-                transform:translateX(-50%);
-                transition:opacity 0.2s;
-                font-size:0.8rem;">
-                Shows dengue risk ranking per barangay.
+    <div style='display: flex; align-items: center; gap: 6px;'>
+        <h4 style='margin: 0;'>Risk Ranking by Barangay</h4>
+        <div style='position: relative; display: inline-block; cursor: help;'>
+            <span style='font-weight: bold; border-radius: 50%; background: #eee; padding: 0 6px;'>i</span>
+            <span style='visibility: hidden; width: 180px; background-color: #333; color: #fff;
+                         text-align: center; border-radius: 6px; padding: 6px; position: absolute;
+                         z-index: 1; bottom: 125%; left: 50%; transform: translateX(-50%);
+                         opacity: 0; transition: opacity 0.3s;'>
+                Shows the dengue risk level per barangay, ranked from highest to lowest.
             </span>
-        </span>
-    
-        <style>
-            span[style*='position:relative']:hover span[style*='visibility:hidden'] {
-                visibility:visible;
-                opacity:1;
-            }
-        </style>
+        </div>
     </div>
+    
+    <style>
+    div[style*='position: relative'] span:first-child:hover + span {
+        visibility: visible;
+        opacity: 1;
+    }
+    </style>
     """, unsafe_allow_html=True)
+
 
 
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Confidence', 'Risk_Level']].copy()
@@ -455,6 +442,7 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
 
 
 
