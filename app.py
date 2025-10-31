@@ -197,6 +197,14 @@ with col1:
                 f"<h6 style='text-align:right;'>{date_range_str}</h6>",
                 unsafe_allow_html=True
             )
+            st.markdown(
+                f"""
+                <div style='display: flex; height: 100%; align-items: flex-end; justify-content: flex-end;'>
+                    <h6 style='margin: 0;'>{date_range_str}</h6>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
         bounds = filtered_data.total_bounds
         buffer = 0.05
         map = leafmap.Map(
@@ -400,6 +408,7 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
 
 
 
