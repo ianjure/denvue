@@ -27,6 +27,9 @@ padding = """
     padding-top: 0rem;
     padding-bottom: 2.5rem;
 }
+[class="stVerticalBlock st-emotion-cache-tn0cau e1wguzas3"] {
+    gap: 0.8rem;
+}
 </style>
 """
 st.markdown(padding, unsafe_allow_html=True)
@@ -83,6 +86,28 @@ div[data-testid="stHeadingWithActionElements"] {
 </style>
 """
 st.markdown(header_color, unsafe_allow_html=True)
+
+# [STREAMLIT] REMOVE HEADER ACTION ELEMENT
+header_action = """
+<style>
+[data-testid="stHeaderActionElements"] {
+    display: none;
+}
+</style>
+"""
+st.markdown(header_action, unsafe_allow_html=True)
+
+# [STREAMLIT] BOTTOM ALIGN CONTENT
+bottom_align = """
+<style>
+.stColumn.st-emotion-cache-1wpb1x8.e1wguzas2 > .stVerticalBlock.st-emotion-cache-wfksaw.e1wguzas3 {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+</style>
+"""
+st.markdown(bottom_align, unsafe_allow_html=True)
 
 # [LEAFMAP] ADD MAP BORDER
 map_border_style = """
@@ -184,7 +209,11 @@ with col1:
             st.write(f"#### **Dengue Risk Distribution Map**")
         with date:
             st.markdown(
-                f"<h4 style='text-align:right;'>{date_range_str}</h4>",
+                f"""
+                <div style='display: flex; height: 100%; align-items: flex-end; justify-content: flex-end;'>
+                    <h6 style='margin: 0;'>{date_range_str}</h6>
+                </div>
+                """,
                 unsafe_allow_html=True
             )
         bounds = filtered_data.total_bounds
@@ -390,24 +419,3 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
