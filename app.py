@@ -24,7 +24,7 @@ float_init()
 padding = """
 <style>
 .block-container {
-    padding-top: 0rem;
+    padding-top: -5rem;
     padding-bottom: 2.5rem;
 }
 </style>
@@ -95,7 +95,16 @@ header_action = """
 st.markdown(header_action, unsafe_allow_html=True)
 
 # [STREAMLIT] BOTTOM ALIGN CONTENT
-
+bottom_align = """
+<style>
+.stColumn.st-emotion-cache-1wpb1x8.e1wguzas2 > .stVerticalBlock.st-emotion-cache-wfksaw.e1wguzas3 {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+</style>
+"""
+st.markdown(bottom_align, unsafe_allow_html=True)
 
 # [LEAFMAP] ADD MAP BORDER
 map_border_style = """
@@ -407,6 +416,7 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
 
 
 
