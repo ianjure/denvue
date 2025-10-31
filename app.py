@@ -97,7 +97,7 @@ st.markdown(header_action, unsafe_allow_html=True)
 # [STREAMLIT] BOTTOM ALIGN CONTENT
 bottom_align = """
 <style>
-[data-testid="stVerticalBlock"] {
+[class="stVerticalBlock st-emotion-cache-wfksaw e1wguzas3"] {
     display: flex;
     justify-content: flex-end;
 }
@@ -415,6 +415,7 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
 
 
 
