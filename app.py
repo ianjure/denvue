@@ -366,30 +366,6 @@ with col2:
 
     # TABLE SECTION
     st.write("#### **Risk Ranking by Barangay**")
-    st.markdown("""
-    <div style='display: flex; align-items: center; gap: 6px;'>
-        <h4 style='margin: 0;'>Risk Ranking by Barangay</h4>
-        <div style='position: relative; display: inline-block; cursor: help;'>
-            <span style='font-weight: bold; border-radius: 50%; background: #eee; padding: 0 6px;'>i</span>
-            <span style='visibility: hidden; width: 180px; background-color: #333; color: #fff;
-                         text-align: center; border-radius: 6px; padding: 6px; position: absolute;
-                         z-index: 1; bottom: 125%; left: 50%; transform: translateX(-50%);
-                         opacity: 0; transition: opacity 0.3s;'>
-                Shows the dengue risk level per barangay, ranked from highest to lowest.
-            </span>
-        </div>
-    </div>
-    
-    <style>
-    div[style*='position: relative'] span:first-child:hover + span {
-        visibility: visible;
-        opacity: 1;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-
-
     table_df = filtered_data[['Barangay', 'Forecast_Cases', 'Confidence', 'Risk_Level']].copy()
     table_df = table_df.rename(columns={"Forecast_Cases": "Forecast Cases", "Confidence": "Confidence", "Risk_Level": "Risk Level"})
     table_df["Forecast Cases"] = table_df["Forecast Cases"].astype(str)
@@ -410,6 +386,11 @@ with col2:
     
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
+
+    st.write("""
+    The Barangay Risk Level shows how the current forecast compares to that barangay’s own forecast history.
+    “Critical Risk” means cases are unusually high for that barangay, even if other areas might have more cases overall.
+    """)
 
 # MODEL OPTIONS
 @st.dialog("Model Options")
@@ -442,10 +423,3 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
-
-
-
-
-
-
-
