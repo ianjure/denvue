@@ -179,7 +179,14 @@ with col1:
         date_range_str = f"{start_date.strftime('%b %d, %Y')} - {end_date.strftime('%b %d, %Y')}"
 
         # MAP SECTION
-        st.write(f"#### **Dengue Risk Distribution Map** ({date_range_str})")
+        title, date = st.columns(2)
+        with title:
+            st.write(f"#### **Dengue Risk Distribution Map**")
+        with date:
+            st.markdown(
+                f"<h4 style='text-align:right;'>{date_range_str}</h4>",
+                unsafe_allow_html=True
+            )
         bounds = filtered_data.total_bounds
         buffer = 0.05
         map = leafmap.Map(
@@ -383,3 +390,4 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
