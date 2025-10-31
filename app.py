@@ -20,14 +20,15 @@ st.set_page_config(page_title="Denvue Dashboard", layout="wide", page_icon=icon)
 st.logo(image="logo.png", size="large")
 float_init()
 
-hide_inner_elements = """
+
+hide_element_containers = """
 <style>
-.stVerticalBlock.st-emotion-cache-tn0cau.e1wguzas3 > * {
+.stVerticalBlock.st-emotion-cache-tn0cau.e1wguzas3 .stElementContainer {
     display: none !important;
 }
 </style>
 """
-st.markdown(hide_inner_elements, unsafe_allow_html=True)
+st.markdown(hide_element_containers, unsafe_allow_html=True)
 
 # [STREAMLIT] ADJUST PADDING
 padding = """
@@ -425,6 +426,7 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
 
 
 
