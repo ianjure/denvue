@@ -205,7 +205,7 @@ with col1:
         )
         
         risk_colors = {
-            "Low": "#FFFF66",
+            "Low": "#E9F3F2",
             "Moderate": "#FFCC00",
             "High": "#FF9900",
             "Critical": "#FF0000"
@@ -213,8 +213,8 @@ with col1:
         
         def get_color(risk_level):
             if pd.isna(risk_level):
-                return "#FFFF66"
-            return risk_colors.get(risk_level, "#FFFF66")
+                return "#E9F3F2"
+            return risk_colors.get(risk_level, "#E9F3F2")
         
         def style_function(feature):
             risk_level = feature["properties"].get("Risk_Level", None)
@@ -273,7 +273,7 @@ with col1:
             padding: 10px;
         ">
             <b>Risk Level</b><br>
-            <i style="background:#FFFF66;width:18px;height:18px;float:left;margin-right:8px;"></i>Low<br>
+            <i style="background:#E9F3F2;width:18px;height:18px;float:left;margin-right:8px;"></i>Low<br>
             <i style="background:#FFCC00;width:18px;height:18px;float:left;margin-right:8px;"></i>Moderate<br>
             <i style="background:#FF9900;width:18px;height:18px;float:left;margin-right:8px;"></i>High<br>
             <i style="background:#FF0000;width:18px;height:18px;float:left;margin-right:8px;"></i>Critical<br>
@@ -341,9 +341,9 @@ with col2:
 
     def color_forecast(val):
         if pd.isna(val):
-            return 'background-color: #FFFF66; color: black'
-        color = risk_colors.get(val, "#FFFF66")
-        if color == "#FFFF66" or color == "#FFCC00":
+            return 'background-color: #E9F3F2; color: black'
+        color = risk_colors.get(val, "#E9F3F2")
+        if color == "#E9F3F2" or color == "#FFCC00":
             text_color = "black"
         else:
             text_color = "white"
@@ -383,3 +383,4 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
+
