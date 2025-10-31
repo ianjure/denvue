@@ -205,16 +205,16 @@ with col1:
         )
         
         risk_colors = {
-            "Low": "#89B4BB",
-            "Moderate": "#557265",
-            "High": "#1A484F",
-            "Critical": "#0B1818"
+            "Low": "#FFFF66",
+            "Moderate": "#FFCC00",
+            "High": "#FF9900",
+            "Critical": "#FF0000"
         }
         
         def get_color(risk_level):
             if pd.isna(risk_level):
-                return "#89B4BB"
-            return risk_colors.get(risk_level, "#89B4BB")
+                return "#FFFF66"
+            return risk_colors.get(risk_level, "#FFFF66")
         
         def style_function(feature):
             risk_level = feature["properties"].get("Risk_Level", None)
@@ -273,10 +273,10 @@ with col1:
             padding: 10px;
         ">
             <b>Risk Level</b><br>
-            <i style="background:#89B4BB;width:18px;height:18px;float:left;margin-right:8px;"></i>Low<br>
-            <i style="background:#557265;width:18px;height:18px;float:left;margin-right:8px;"></i>Moderate<br>
-            <i style="background:#1A484F;width:18px;height:18px;float:left;margin-right:8px;"></i>High<br>
-            <i style="background:#0B1818;width:18px;height:18px;float:left;margin-right:8px;"></i>Critical<br>
+            <i style="background:#FFFF66;width:18px;height:18px;float:left;margin-right:8px;"></i>Low<br>
+            <i style="background:#FFCC00;width:18px;height:18px;float:left;margin-right:8px;"></i>Moderate<br>
+            <i style="background:#FF9900;width:18px;height:18px;float:left;margin-right:8px;"></i>High<br>
+            <i style="background:#FF0000;width:18px;height:18px;float:left;margin-right:8px;"></i>Critical<br>
         </div>
         {% endmacro %}
         """
@@ -341,9 +341,9 @@ with col2:
 
     def color_forecast(val):
         if pd.isna(val):
-            return 'background-color: #89B4BB; color: black'
-        color = risk_colors.get(val, "#89B4BB")
-        if color == "#89B4BB" or color == "#557265":
+            return 'background-color: #FFFF66; color: black'
+        color = risk_colors.get(val, "#FFFF66")
+        if color == "#FFFF66" or color == "#FFCC00":
             text_color = "black"
         else:
             text_color = "white"
