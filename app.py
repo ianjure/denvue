@@ -416,7 +416,7 @@ def open_model_options():
     model_name_map = {
         "linear_regression": "Linear Regression",
         "varmax": "VARMAX",
-        "random_forest": "Random Forest",
+        "random_forest": "Random Forest (Recommended)",
         "xgboost": "XGBoost",
     }
     model_display = [model_name_map[m] for m in merged_all["Model"].unique() if m in model_name_map]
