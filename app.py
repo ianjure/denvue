@@ -351,6 +351,15 @@ with col1:
             st.session_state.selected_year = selected_year
             st.session_state.selected_week = selected_week
             st.rerun()
+
+        # MAP DESCRIPTION
+        map_description = st.container(border=True)
+        map_description.write("""
+        The map visualizes barangay-level dengue forecasts across the city, allowing users to identify spatial patterns and emerging hotspots.
+        Each barangay is color-coded based on its forecasted risk level, enabling quick recognition of areas with unusual case surges.
+        This adaptive approach highlights localized dengue trends rather than absolute case counts,
+        making it easier for public health teams to prioritize surveillance and response efforts.
+        """)
             
 # RIGHT COLUMN
 with col2:
@@ -392,6 +401,15 @@ with col2:
     styled_table = table_df.style.applymap(color_forecast, subset=['Risk Level'])
     st.dataframe(styled_table, width='stretch', height=380)
 
+    # RISK LEVEL DESCRIPTION
+    risk_description = st.container(border=True)
+    risk_description.write("""
+    Each barangay’s dengue forecast is evaluated relative to its own historical trends, providing a context-aware risk measure.
+    “Low Risk” indicates forecasts within the bottom 25th percentile of past values, while “Moderate Risk” covers the 25th–50th percentile range.
+    “High Risk” spans the 50th–75th percentile, and “Critical Risk” exceeds the 75th percentile, signaling an unusual spike.
+    This adaptive scale ensures that even subtle local increases are detected early for timely interventions.
+    """)
+
 # MODEL OPTIONS
 @st.dialog("Model Options")
 def open_model_options():
@@ -423,4 +441,3 @@ with button_container:
     
 button_css = float_css_helper(width="3rem", height="3rem", right="0.8rem", top="0.6rem", transition=0)
 button_container.float(button_css)
-
